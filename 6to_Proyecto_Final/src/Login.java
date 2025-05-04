@@ -70,6 +70,8 @@ public class Login extends JFrame {
         			JOptionPane.showMessageDialog(null, "Usuario y contraseña correctos", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         			Principal Principal = new Principal(Sesion, Login.this);
         			Principal.setVisible(true);
+        			txtUser.setText("");
+        			txtContra.setText("");
         			setVisible(false);
         		}
         		else {
