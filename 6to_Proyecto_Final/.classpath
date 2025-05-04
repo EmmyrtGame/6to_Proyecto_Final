@@ -6,10 +6,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="librerias/commons-lang3-3.8.1.jar"/>
-	<classpathentry kind="lib" path="librerias/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="librerias/hsqldb-2.5.0.jar"/>
-	<classpathentry kind="lib" path="librerias/jackcess-3.0.1.jar"/>
-	<classpathentry kind="lib" path="librerias/ucanaccess-5.0.1.jar"/>
+	<classpathentry kind="lib" path="librerias_Access/commons-lang3-3.8.1.jar"/>
+	<classpathentry kind="lib" path="librerias_Access/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="librerias_Access/hsqldb-2.5.0.jar"/>
+	<classpathentry kind="lib" path="librerias_Access/jackcess-3.0.1.jar"/>
+	<classpathentry kind="lib" path="librerias_Access/ucanaccess-5.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
