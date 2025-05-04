@@ -15,11 +15,13 @@ public class Principal extends JFrame {
     private ButtonGroup              btnGroup = new ButtonGroup();
     private Sesion sesion;  // Instancia de Sesion
     private Login loginWindow;  // Referencia a la ventana de Login
+    private String rol;
 
     public Principal(Sesion sesion, Login loginWindow) {
         super("App con Barra Lateral y Vistas Internas");
         this.sesion = sesion;
         this.loginWindow = loginWindow;
+        this.rol = sesion.getRol();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // 1) Ventana al 80% de la pantalla

@@ -2,13 +2,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Sesion {
-	public int idUsuario;
-	public String usuario;
-	public String contrasena;
-	public String nombre;
-	public String rol;
+	private int idUsuario;
+	private String usuario;
+	private String contrasena;
+	private String nombre;
+	private String rol;
 	
-	public ConexionAccess db;
+	private ConexionAccess db;
 	
 	/**
 	 * Método constructor paramatrizado
@@ -67,6 +67,22 @@ public class Sesion {
 		setContra("");
 		setRol("");
 	}
+	
+	public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public String getUser() {
+        return usuario;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getRol() {
+        return rol;
+    }
 	
 	public void setRol(String rol)
 	{
