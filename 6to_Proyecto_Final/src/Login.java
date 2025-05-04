@@ -5,7 +5,10 @@ import java.awt.event.ActionEvent;
 
 public class Login extends JFrame {
 	private JTextField txtContra;
+	private Sesion Sesion;
     public Login() {
+    	
+    	Sesion = new Sesion(-1, "", "", "", "");
     	
     	String usuario = "user";
     	String contrasena = "password";
@@ -64,9 +67,14 @@ public class Login extends JFrame {
         		String userInput = txtUser.getText();
         		String contraInput = txtContra.getText();
         		
-        		if ((userInput.equals(usuario)) && (contraInput.equals(contrasena))) {
-        			JFrame ventana = new Principal();
-        			ventana.setVisible(true);
+        		Sesion.setUser(usuario);
+        		Sesion.setContra(contrasena);
+        		
+        		if (Sesion.Autenticar()) {
+        			JOptionPane.showMessageDialog(null, "Usuario y contraseña correctos", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        		}
+        		else {
+        			JOptionPane.showMessageDialog(null, "Usuario y contraseña incorrectos", "Credenciales incorrectas", JOptionPane.ERROR_MESSAGE);
         		}
         	}
         });
