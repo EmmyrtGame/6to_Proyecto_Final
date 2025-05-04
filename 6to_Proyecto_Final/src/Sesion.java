@@ -26,25 +26,34 @@ public class Sesion {
 	
 	public boolean Autenticar()
 	{
-		String consulta = String.format("SELECT * FROM sesiones WHERE usuario='%s' AND password='%s'", usuario, contrasena);
-		try {
-            ResultSet rs = db.obtenerSentencia(consulta);
-            while (rs.next()) {
-                this.idUsuario = rs.getInt("id");
-                this.nombre = rs.getString("nombre");
-                this.usuario = rs.getString("usuario");
-                this.contrasena = rs.getString("password");
-                this.rol = rs.getString("rol");
-            }
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-        	db.cerrarConexion();
-        }
-		
-		return false;
+	    String consulta = String.format("SELECT * FROM sesiones WHERE usuario='%s' AND password='%s'", usuario, contrasena);
+	    try {
+	        ResultSet rs = db.obtenerSentencia(consulta);
+	        if (rs.next()) {
+	            this.idUsuario = rs.getInt("id");
+	            this.nombre = rs.getString("nombre");
+	            this.usuario = rs.getString("usuario");
+	            this.contrasena = rs.getString("password");
+	            this.rol = rs.getString("rol");
+	            return true;
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        db.cerrarConexion();
+	    }
+	    return false;
 	}
+	
+	public void Desautenticar()
+	{
+		this.idUsuario = -1;
+		this.nombre = "";
+		this.usuario = "";
+		this.contrasena = "";
+		this.rol = "";
+	}
+
 	
 	public void setUser(String usuario)
 	{

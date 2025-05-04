@@ -13,9 +13,13 @@ public class Principal extends JFrame {
     private Map<String,JToggleButton> btnMap   = new HashMap<>();
     private Map<String,JPanel>       viewMap  = new HashMap<>();
     private ButtonGroup              btnGroup = new ButtonGroup();
+    private Sesion sesion;  // Instancia de Sesion
+    private Login loginWindow;  // Referencia a la ventana de Login
 
-    public Principal() {
+    public Principal(Sesion sesion, Login loginWindow) {
         super("App con Barra Lateral y Vistas Internas");
+        this.sesion = sesion;
+        this.loginWindow = loginWindow;
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // 1) Ventana al 80% de la pantalla
@@ -44,8 +48,7 @@ public class Principal extends JFrame {
 
         // 5) Botones en la sidebar
         addSidebarButton("Dashboard", Dashboard::new);
-        addSidebarButton("Vista B",    VistaB::new);
-        
+        addLogoutButton();
 
         // 6) Mostrar Dashboard por defecto
         JToggleButton dashBtn = btnMap.get("Dashboard");
@@ -82,16 +85,40 @@ public class Principal extends JFrame {
             viewContainer.repaint();
         });
     }
-
-    public static class VistaB extends JPanel {
-        public VistaB() {
-            super(new FlowLayout());
-            add(new JButton("Botón en Vista B"));
-        }
-    }
     
+    private void addLogoutButton() {
+        // Agregar un espacio vertical antes del botón de cerrar sesión
+        sidebar.add(Box.createVerticalGlue());  // Empuja el botón hacia abajo
+        JButton logoutBtn = new JButton("Cerrar Sesión");
+        logoutBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logoutBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        logoutBtn.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.RED, 1),
+            BorderFactory.createEmptyBorder(5,10,5,10)
+        ));
+        logoutBtn.setBackground(new Color(255, 200, 200));
+        logoutBtn.setForeground(Color.RED);
+        logoutBtn.setFocusPainted(false);
+
+        logoutBtn.addActionListener(e -> {
+            // Llamar al método Desautenticar
+            sesion.Desautenticar();
+            // Mostrar mensaje de cierre de sesión
+            JOptionPane.showMessageDialog(this, "Sesión cerrada con éxito", "Cerrar Sesión", JOptionPane.INFORMATION_MESSAGE);
+            // Mostrar la ventana de login nuevamente
+            loginWindow.setVisible(true);
+            // Cerrar la ventana principal
+            dispose();
+        });
+
+        sidebar.add(Box.createVerticalStrut(10));
+        sidebar.add(logoutBtn);
+    }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(Principal::new);
+    	SwingUtilities.invokeLater(() -> {
+            Sesion sesionPrueba = new Sesion(1, "OxxoAdmin", "123456", "LUIS EMMYRT AVILA AGUILAR", "Admin");
+            new Principal(sesionPrueba, null);
+        });
     }
 }

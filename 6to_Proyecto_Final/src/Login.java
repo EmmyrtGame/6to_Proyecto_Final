@@ -7,15 +7,11 @@ public class Login extends JFrame {
 	private JTextField txtContra;
 	private Sesion Sesion;
     public Login() {
-    	
     	Sesion = new Sesion(-1, "", "", "", "");
-    	
-    	String usuario = "user";
-    	String contrasena = "password";
     	
     	setResizable(false);
         setTitle("Login");
-        setSize(506, 374);
+        setSize(505, 376);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -25,14 +21,14 @@ public class Login extends JFrame {
         background.setLayout(null);
         getContentPane().add(background);
 
-        // Panel central ("tarjeta")
+        // Panel central
         JPanel card = new JPanel();
         card.setBackground(new Color(255, 255, 255));
-        card.setBounds(50, 30, 400, 270);
+        card.setBounds(45, 30, 400, 270);
         card.setLayout(null);
         background.add(card);
 
-        // Ícono de usuario (placeholder)
+        // Ícono de usuario
         JLabel icon = new JLabel();
         icon.setIcon(new ImageIcon("./imagenes/user.png"));
         icon.setBounds(161, 11, 100, 95);
@@ -67,11 +63,14 @@ public class Login extends JFrame {
         		String userInput = txtUser.getText();
         		String contraInput = txtContra.getText();
         		
-        		Sesion.setUser(usuario);
-        		Sesion.setContra(contrasena);
+        		Sesion.setUser(userInput);
+        		Sesion.setContra(contraInput);
         		
         		if (Sesion.Autenticar()) {
         			JOptionPane.showMessageDialog(null, "Usuario y contraseña correctos", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        			Principal Principal = new Principal(Sesion, Login.this);
+        			Principal.setVisible(true);
+        			setVisible(false);
         		}
         		else {
         			JOptionPane.showMessageDialog(null, "Usuario y contraseña incorrectos", "Credenciales incorrectas", JOptionPane.ERROR_MESSAGE);
