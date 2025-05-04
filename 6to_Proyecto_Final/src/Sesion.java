@@ -2,26 +2,40 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Sesion {
-	public static int idUsuario;
-	public static String usuario;
-	public static String contrasena;
-	public static String nombre;
-	public static String rol;
+	public int idUsuario;
+	public String usuario;
+	public String contrasena;
+	public String nombre;
+	public String rol;
 	
-	public static ConexionAccess db;
+	public ConexionAccess db;
 	
 	/**
-	 * Método constructor
+	 * Método constructor paramatrizado
 	 */
 	public Sesion(int idUsuario, String usuario, String contrasena, String nombre, String rol)
 	{
 		this.idUsuario = idUsuario;
-		this.usuario = usuario;
-		this.contrasena = contrasena;
-		this.nombre = nombre;
-		this.rol = rol;
+        this.usuario = usuario;
+        this.contrasena = contrasena;
+        this.nombre = nombre;
+        this.rol = rol;
 		
 		db = new ConexionAccess();
+	}
+	
+	/**
+	 * Método constructor por defecto
+	 */
+	public Sesion()
+	{
+		this.idUsuario = -1;
+		this.usuario = "";
+		this.contrasena = "";
+		this.nombre = "";
+		this.rol = "";
+		
+		this.db = new ConexionAccess();
 	}
 	
 	public boolean Autenticar()
@@ -47,13 +61,27 @@ public class Sesion {
 	
 	public void Desautenticar()
 	{
-		this.idUsuario = -1;
-		this.nombre = "";
-		this.usuario = "";
-		this.contrasena = "";
-		this.rol = "";
+		setId(-1);
+		setNombre("");
+		setUser("");
+		setContra("");
+		setRol("");
 	}
-
+	
+	public void setRol(String rol)
+	{
+		this.rol = rol;
+	}
+	
+	public void setNombre(String nombre)
+	{
+		this.nombre = nombre;
+	}
+	
+	public void setId(int id)
+	{
+		this.idUsuario = id;
+	}
 	
 	public void setUser(String usuario)
 	{

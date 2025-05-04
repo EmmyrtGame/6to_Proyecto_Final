@@ -7,7 +7,7 @@ public class Login extends JFrame {
 	private JTextField txtContra;
 	private Sesion Sesion;
     public Login() {
-    	Sesion = new Sesion(-1, "", "", "", "");
+    	Sesion = new Sesion();
     	
     	setResizable(false);
         setTitle("Login");
