@@ -34,46 +34,52 @@ public class Inventario extends JPanel {
         top.add(titlePanel);
 
         JPanel searchPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 5, 0, 5);
-        gbc.gridy = 0;
-
+        
         // Agregar label de filtro para el combo
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.weightx = 0.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.CENTER;
+        GridBagConstraints filterLabelGbc = new GridBagConstraints();
+        filterLabelGbc.gridx = 1;
+        filterLabelGbc.gridy = 0;
+        filterLabelGbc.weightx = 0.0;
+        filterLabelGbc.fill = GridBagConstraints.HORIZONTAL;
+        filterLabelGbc.anchor = GridBagConstraints.CENTER;
+        filterLabelGbc.insets = new Insets(0, 5, 0, 5);
         JLabel filterLabel = new JLabel("Filtro:");
-        searchPanel.add(filterLabel, gbc);
+        searchPanel.add(filterLabel, filterLabelGbc);
 
         // Reubicar el combobox en la fila inferior
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.weighty = 1.0;
+        GridBagConstraints comboGbc = new GridBagConstraints();
+        comboGbc.gridx = 1;
+        comboGbc.gridy = 1;
+        comboGbc.weighty = 1.0;
+        comboGbc.insets = new Insets(0, 5, 0, 5);
         filterCombo = new JComboBox<>(new String[] { "Todos", "Categoría", "Estado" });
         filterCombo.setPreferredSize(new Dimension(120, 30));
-        searchPanel.add(filterCombo, gbc);
+        searchPanel.add(filterCombo, comboGbc);
 
         // Campo de texto de búsqueda (se expande)
-        gbc.gridx = 0;
-        gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        GridBagConstraints searchFieldGbc = new GridBagConstraints();
+        searchFieldGbc.gridx = 0;
+        searchFieldGbc.gridy = 1;
+        searchFieldGbc.weightx = 1.0;
+        searchFieldGbc.fill = GridBagConstraints.HORIZONTAL;
+        searchFieldGbc.insets = new Insets(0, 5, 0, 5);
         searchField = new JTextField();
-        searchField.setPreferredSize(new Dimension(350, 30));
-        searchPanel.add(searchField, gbc);
-
+        searchField.setPreferredSize(new Dimension(300, 30));
+        searchPanel.add(searchField, searchFieldGbc);
 
         // Botón de búsqueda
-        gbc.gridx = 2;
+        GridBagConstraints buttonGbc = new GridBagConstraints();
+        buttonGbc.gridx = 2;
+        buttonGbc.gridy = 1;
+        buttonGbc.insets = new Insets(0, 5, 0, 5);
         JButton searchButton = new JButton("Buscar");
-        searchButton.setPreferredSize(new Dimension(50, 30));
-        searchPanel.add(searchButton, gbc);
-
+        searchButton.setPreferredSize(new Dimension(100, 30));
+        searchPanel.add(searchButton, buttonGbc);
 
         top.add(searchPanel);
         add(top, BorderLayout.NORTH);
     }
+
 
     /**
      * Procedimiento que inicializa el componente de la tabla
