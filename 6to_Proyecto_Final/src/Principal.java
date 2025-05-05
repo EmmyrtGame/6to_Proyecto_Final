@@ -38,7 +38,7 @@ public class Principal extends JFrame {
         sidebar = new JPanel();
         sidebar.setBackground(new Color(255, 255, 255));
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));                // padding exterior[3]
+        sidebar.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         sidebar.setPreferredSize(new Dimension((int)(W * SIDEBAR_RATIO), 1));
         content.add(sidebar, BorderLayout.WEST);
 
@@ -50,6 +50,9 @@ public class Principal extends JFrame {
 
         // 5) Botones en la sidebar
         addSidebarButton("Dashboard", Dashboard::new);
+        if (this.rol.equals("Admin")) {
+        	addSidebarButton("Inventario", Inventario::new);
+        }
         addLogoutButton();
 
         // 6) Mostrar Dashboard por defecto

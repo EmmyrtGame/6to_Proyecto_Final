@@ -1,4 +1,8 @@
-
+/**
+ * Productos
+ * 
+ * Clase de tipo objeto para administrar los productos
+ */
 public class Productos {
 	
 	private int id;
@@ -37,6 +41,15 @@ public class Productos {
         this.cantidad = 0;
         this.codigo = "";
     }
+    
+    public int getId() { return id; }
+    public String getNombre() { return nombre; }
+    public String getDescripcion() { return descripcion; }
+    public double getPrecio() { return precio; }
+    public String getProveedor() { return proveedor; }
+    public String getCategoria() { return categoria; }
+    public int getCantidad() { return cantidad; }
+    public String getCodigo() { return codigo; }
     
     public void setId(int id) {
         this.id = id;
