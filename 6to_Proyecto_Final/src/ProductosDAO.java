@@ -111,4 +111,12 @@ public class ProductosDAO {
         
         return lista;
     }
+    
+    /**
+     * Elimina un producto por su ID
+     */
+    public boolean eliminar(int id) {
+        String sql = "DELETE FROM productos WHERE id = " + id;
+        return db.ejecutarSentencia(sql);
+    }
 }

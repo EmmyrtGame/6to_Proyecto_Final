@@ -20,6 +20,7 @@ public class Inventario extends JPanel {
         setLayout(new BorderLayout(10, 10)); // Establece los puntos de agarre de los componentes
         iniciarPanelSuperior(); // Procedimiento que inicializa el panel superior (barra de búsqueda)
         iniciarTabla(); // Procedimiento que inicializa la tabla de datos
+        iniciarPanelInferior();
         cargarProductos(); // Procedimiento que carga los datos de la base de datos
     }
 
@@ -88,6 +89,27 @@ public class Inventario extends JPanel {
         top.add(busquedaPanel);
         add(top, BorderLayout.NORTH);
     }
+    
+    /**
+     * Procedimiento que inicializa el panel inferior con botones de acción
+     */
+    private void iniciarPanelInferior() {
+        JPanel bottom = new JPanel();
+        bottom.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        
+        JButton btnEliminar = new JButton("Eliminar Producto");
+        btnEliminar.setBackground(new Color(255, 100, 100));
+        btnEliminar.setForeground(Color.WHITE);
+        btnEliminar.setFocusPainted(false);
+        btnEliminar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                eliminarProductoSeleccionado();
+            }
+        });
+        
+        bottom.add(btnEliminar);
+        add(bottom, BorderLayout.SOUTH);
+    }
 
 
     /**
@@ -142,6 +164,61 @@ public class Inventario extends JPanel {
             });
         }
     }
+    
+    /**
+     * Elimina el producto seleccionado en la tabla
+     */
+    private void eliminarProductoSeleccionado() {
+        int filaSeleccionada = tblInventario.getSelectedRow();
+        if (filaSeleccionada >= 0) {
+            // Obtener el código del producto seleccionado
+            String codigo = (String) tblInventario.getValueAt(filaSeleccionada, 6);
+            
+            // Mostrar confirmación
+            int confirmacion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de eliminar el producto con código " + codigo + "?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+            
+            if (confirmacion == JOptionPane.YES_OPTION) {
+                // Buscar el producto por su código
+                List<Productos> productos = dao.obtenerBusqueda(codigo, "Código");
+                if (!productos.isEmpty()) {
+                    int id = productos.get(0).getId();
+                    boolean eliminado = dao.eliminar(id);
+                    
+                    if (eliminado) {
+                        JOptionPane.showMessageDialog(
+                            this,
+                            "Producto eliminado con éxito",
+                            "Eliminación exitosa",
+                            JOptionPane.INFORMATION_MESSAGE
+                        );
+                        // Recargar la tabla
+                        cargarProductos();
+                    } else {
+                        JOptionPane.showMessageDialog(
+                            this,
+                            "No se pudo eliminar el producto",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                    }
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(
+                this,
+                "Por favor, seleccione un producto de la tabla",
+                "Aviso",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        }
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
