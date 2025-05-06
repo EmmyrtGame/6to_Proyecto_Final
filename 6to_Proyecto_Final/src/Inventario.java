@@ -3,11 +3,13 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Inventario extends JPanel {
-    private JTextField searchField;
-    private JComboBox<String> filterCombo;
-    private JTable inventoryTable;
+    private JTextField txtBusqueda;
+    private JComboBox<String> cmbFiltro;
+    private JTable tblInventario;
     private ProductosDAO dao = new ProductosDAO();
 
     /**
@@ -33,7 +35,7 @@ public class Inventario extends JPanel {
         titlePanel.add(title);
         top.add(titlePanel);
 
-        JPanel searchPanel = new JPanel(new GridBagLayout());
+        JPanel busquedaPanel = new JPanel(new GridBagLayout());
         
         // Agregar label de filtro para el combo
         GridBagConstraints filterLabelGbc = new GridBagConstraints();
@@ -44,7 +46,7 @@ public class Inventario extends JPanel {
         filterLabelGbc.anchor = GridBagConstraints.CENTER;
         filterLabelGbc.insets = new Insets(0, 5, 0, 5);
         JLabel filterLabel = new JLabel("Filtro:");
-        searchPanel.add(filterLabel, filterLabelGbc);
+        busquedaPanel.add(filterLabel, filterLabelGbc);
 
         // Reubicar el combobox en la fila inferior
         GridBagConstraints comboGbc = new GridBagConstraints();
@@ -52,20 +54,20 @@ public class Inventario extends JPanel {
         comboGbc.gridy = 1;
         comboGbc.weighty = 1.0;
         comboGbc.insets = new Insets(0, 5, 0, 5);
-        filterCombo = new JComboBox<>(new String[] { "Todos", "Categoría", "Estado" });
-        filterCombo.setPreferredSize(new Dimension(120, 30));
-        searchPanel.add(filterCombo, comboGbc);
+        cmbFiltro = new JComboBox<>(new String[] { "Todos", "Nombre", "Descripción", "Precio", "Proveedor", "Categoría", "Cantidad", "Código" });
+        cmbFiltro.setPreferredSize(new Dimension(120, 30));
+        busquedaPanel.add(cmbFiltro, comboGbc);
 
-        // Campo de texto de búsqueda (se expande)
-        GridBagConstraints searchFieldGbc = new GridBagConstraints();
-        searchFieldGbc.gridx = 0;
-        searchFieldGbc.gridy = 1;
-        searchFieldGbc.weightx = 1.0;
-        searchFieldGbc.fill = GridBagConstraints.HORIZONTAL;
-        searchFieldGbc.insets = new Insets(0, 5, 0, 5);
-        searchField = new JTextField();
-        searchField.setPreferredSize(new Dimension(300, 30));
-        searchPanel.add(searchField, searchFieldGbc);
+        // Campo de texto de búsqueda
+        GridBagConstraints txtBusquedaGbc = new GridBagConstraints();
+        txtBusquedaGbc.gridx = 0;
+        txtBusquedaGbc.gridy = 1;
+        txtBusquedaGbc.weightx = 1.0;
+        txtBusquedaGbc.fill = GridBagConstraints.HORIZONTAL;
+        txtBusquedaGbc.insets = new Insets(0, 5, 0, 5);
+        txtBusqueda = new JTextField();
+        txtBusqueda.setPreferredSize(new Dimension(300, 30));
+        busquedaPanel.add(txtBusqueda, txtBusquedaGbc);
 
         // Botón de búsqueda
         GridBagConstraints buttonGbc = new GridBagConstraints();
@@ -73,10 +75,17 @@ public class Inventario extends JPanel {
         buttonGbc.gridy = 1;
         buttonGbc.insets = new Insets(0, 5, 0, 5);
         JButton searchButton = new JButton("Buscar");
+        searchButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		String busquedaInput = txtBusqueda.getText();
+        		String filtro = cmbFiltro.getSelectedItem().toString();
+        		cargarBusqueda(busquedaInput, filtro);
+        	}
+        });
         searchButton.setPreferredSize(new Dimension(100, 30));
-        searchPanel.add(searchButton, buttonGbc);
+        busquedaPanel.add(searchButton, buttonGbc);
 
-        top.add(searchPanel);
+        top.add(busquedaPanel);
         add(top, BorderLayout.NORTH);
     }
 
@@ -89,20 +98,40 @@ public class Inventario extends JPanel {
         DefaultTableModel model = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         };
-        inventoryTable = new JTable(model);
-        inventoryTable.setFillsViewportHeight(true);
-        add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
+        tblInventario = new JTable(model);
+        tblInventario.setFillsViewportHeight(true);
+        add(new JScrollPane(tblInventario), BorderLayout.CENTER);
+    }
+    
+    /**
+     * Procedimiento que manda a llamar y lee la búsqueda de los productos en la base de datos.
+     */
+    private void cargarBusqueda(String busquedaInput, String filtroInput) {
+    	DefaultTableModel modelo = (DefaultTableModel) tblInventario.getModel();
+    	modelo.setRowCount(0);
+    	List<Productos> productos = dao.obtenerBusqueda(busquedaInput, filtroInput);
+    	for (Productos p : productos) {
+            modelo.addRow(new Object[]{
+                p.getNombre(),
+                p.getDescripcion(),
+                p.getPrecio(),
+                p.getProveedor(),
+                p.getCategoria(),
+                p.getCantidad(),
+                p.getCodigo()
+            });
+        }
     }
 
     /**
      * Procedimiento que lee todos los productos de la base de datos y los carga en la tabla
      */
     private void cargarProductos() {
-        DefaultTableModel model = (DefaultTableModel) inventoryTable.getModel();
-        model.setRowCount(0); // limpia filas previas
+        DefaultTableModel modelo = (DefaultTableModel) tblInventario.getModel();
+        modelo.setRowCount(0); // limpia filas previas
         List<Productos> productos = dao.obtenerTodos();
         for (Productos p : productos) {
-            model.addRow(new Object[]{
+            modelo.addRow(new Object[]{
                 p.getNombre(),
                 p.getDescripcion(),
                 p.getPrecio(),

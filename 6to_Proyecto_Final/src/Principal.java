@@ -24,17 +24,17 @@ public class Principal extends JFrame {
         this.rol = sesion.getRol();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // 1) Ventana al 80% de la pantalla
+        // Ventana al 80% de la pantalla
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int W = (int)(screen.width * 0.8),
             H = (int)(screen.height * 0.8);
         setPreferredSize(new Dimension(W, H));
 
-        // 2) Contenedor principal con BorderLayout
+        // Contenedor principal con BorderLayout
         JPanel content = new JPanel(new BorderLayout(5,5));
         setContentPane(content);
 
-        // 3) Sidebar con margen y separación
+        // Sidebar con margen y separación
         sidebar = new JPanel();
         sidebar.setBackground(new Color(255, 255, 255));
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
@@ -42,13 +42,13 @@ public class Principal extends JFrame {
         sidebar.setPreferredSize(new Dimension((int)(W * SIDEBAR_RATIO), 1));
         content.add(sidebar, BorderLayout.WEST);
 
-        // 4) Contenedor de vistas tipo CardLayout
+        // Contenedor de vistas tipo CardLayout
         viewLayout    = new CardLayout();
         viewContainer = new JPanel(viewLayout);
         viewContainer.setBackground(new Color(234, 180, 180));
         content.add(viewContainer, BorderLayout.CENTER);
 
-        // 5) Botones en la sidebar
+        // Botones en la sidebar
         addSidebarButton("Dashboard", Dashboard::new);
         if (this.rol.equals("Admin")) {
         	addSidebarButton("Inventario", Inventario::new);
@@ -56,12 +56,12 @@ public class Principal extends JFrame {
         }
         addLogoutButton();
 
-        // 6) Mostrar Dashboard por defecto
+        // Mostrar Dashboard por defecto
         JToggleButton dashBtn = btnMap.get("Dashboard");
         dashBtn.setSelected(true);
         dashBtn.doClick();
 
-        // 7) Empaquetar y mostrar
+        // Empaquetar y mostrar
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
