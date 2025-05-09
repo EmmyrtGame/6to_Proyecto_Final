@@ -97,7 +97,7 @@ public class Ventas extends JPanel {
                 case "Proveedor":
                     valorBusqueda = p.getProveedor().toLowerCase();
                     break;
-                default: // Todos
+                default: 
                     valorBusqueda = p.getNombre().toLowerCase() + " " + 
                                   p.getCategoria().toLowerCase() + " " + 
                                   p.getProveedor().toLowerCase();
