@@ -107,10 +107,24 @@ public class Inventario extends JPanel {
             }
         });
         
+        JButton btnAgregar = new JButton("Agregar");
+        btnAgregar.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		mostrarModalAgregar();
+        	}
+        });
+        
+        bottom.add(btnAgregar);
         bottom.add(btnEliminar);
         add(bottom, BorderLayout.SOUTH);
     }
 
+    /**
+     * Procedimiento que muestra el modal de agregar
+     */
+    private void mostrarModalAgregar() {
+    	ModalAgregar agregar = new ModalAgregar();
+    }
 
     /**
      * Procedimiento que inicializa el componente de la tabla

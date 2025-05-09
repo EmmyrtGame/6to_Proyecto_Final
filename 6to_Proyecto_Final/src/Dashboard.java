@@ -10,7 +10,6 @@ public class Dashboard extends JPanel {
 
         // Panel superior: Estadísticas en 1 fila x 3 columnas
         JPanel statsPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-        statsPanel.setBorder(BorderFactory.createTitledBorder("Estadísticas"));
         statsPanel.add(createStatPanel("Usuarios", "1,234", Color.GREEN));
         statsPanel.add(createStatPanel("Ventas",   "$56,789", Color.BLUE));
         statsPanel.add(createStatPanel("Visitas", "12,345", Color.ORANGE));
