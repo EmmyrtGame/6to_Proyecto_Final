@@ -2,14 +2,21 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
+import java.io.File;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 public class Inventario extends JPanel {
     private JTextField txtBusqueda;
     private JComboBox<String> cmbFiltro;
     private JTable tblInventario;
+    private JLabel lblImagePreview;
     private ProductosDAO dao = new ProductosDAO();
 
     /**
@@ -20,6 +27,7 @@ public class Inventario extends JPanel {
         setLayout(new BorderLayout(10, 10)); // Establece los puntos de agarre de los componentes
         iniciarPanelSuperior(); // Procedimiento que inicializa el panel superior (barra de búsqueda)
         iniciarTabla(); // Procedimiento que inicializa la tabla de datos
+        iniciarPanelVistaPrevia();
         iniciarPanelInferior();
         cargarProductos(); // Procedimiento que carga los datos de la base de datos
     }
@@ -131,19 +139,113 @@ public class Inventario extends JPanel {
     	ModalAgregar agregar = new ModalAgregar();
     	cargarProductos();
     }
+    
+    /**
+     * Procedimiento que inicializa el panel de vista previa a la derecha de la tabla
+     */
+    private void iniciarPanelVistaPrevia() {
+        JPanel previewPanel = new JPanel();
+        previewPanel.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(Color.BLACK), 
+            "Vista Previa", 
+            TitledBorder.DEFAULT_JUSTIFICATION, 
+            TitledBorder.DEFAULT_POSITION, 
+            new Font("Century Gothic", Font.BOLD, 14)
+        ));
+        previewPanel.setPreferredSize(new Dimension(250, 0)); // Ancho fijo para el panel
+        previewPanel.setLayout(new BorderLayout());
+
+        lblImagePreview = new JLabel("Sin imagen", SwingConstants.CENTER);
+        lblImagePreview.setFont(new Font("Century Gothic", Font.PLAIN, 12));
+        previewPanel.add(lblImagePreview, BorderLayout.CENTER);
+
+        add(previewPanel, BorderLayout.EAST);
+    }
+
 
     /**
      * Procedimiento que inicializa el componente de la tabla
      */
     private void iniciarTabla() {
-        String[] cols = {"Nombre","Descripción","Precio","Proveedor","Categoría","Cantidad","Código"};
+        String[] cols = {"Nombre", "Descripción", "Precio", "Proveedor", "Categoría", "Cantidad", "Código"};
         DefaultTableModel model = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         };
         tblInventario = new JTable(model);
-        tblInventario.setFont(new Font("Century Gothic", Font.PLAIN, 12));
+        tblInventario.setFont(new Font("Tahoma", Font.PLAIN, 12));
         tblInventario.setFillsViewportHeight(true);
+
+        // Añadir listener para detectar selección de fila
+        tblInventario.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    mostrarImagenSeleccionada();
+                }
+            }
+        });
+
         add(new JScrollPane(tblInventario), BorderLayout.CENTER);
+    }
+    
+    /**
+     * Procedimiento que muestra la imagen del producto seleccionado
+     */
+    private void mostrarImagenSeleccionada() {
+        int filaSeleccionada = tblInventario.getSelectedRow();
+        if (filaSeleccionada >= 0) {
+            // Obtener el código del producto para buscar la imagen
+            String codigo = (String) tblInventario.getValueAt(filaSeleccionada, 6);
+            // Buscar el producto en la base de datos para obtener la ruta de la imagen
+            List<Productos> productos = dao.obtenerBusqueda(codigo, "Código");
+            if (!productos.isEmpty()) {
+                String rutaImagen = productos.get(0).getRutaImagen();
+                cargarImagen(rutaImagen);
+            } else {
+                lblImagePreview.setIcon(null);
+                lblImagePreview.setText("Sin imagen");
+            }
+        } else {
+            lblImagePreview.setIcon(null);
+            lblImagePreview.setText("Sin imagen");
+        }
+    }
+
+    /**
+     * Procedimiento que carga y muestra la imagen desde la ruta proporcionada
+     */
+    private void cargarImagen(String rutaImagen) {
+        if (rutaImagen == null || rutaImagen.isEmpty()) {
+            lblImagePreview.setIcon(null);
+            lblImagePreview.setText("Sin imagen");
+            return;
+        }
+
+        try {
+            File file = new File(rutaImagen);
+            if (!file.exists()) {
+                lblImagePreview.setIcon(null);
+                lblImagePreview.setText("Imagen no encontrada");
+                return;
+            }
+
+            Image img = ImageIO.read(file);
+            if (img != null) {
+                // Redimensionar la imagen para ajustarse al panel
+                int width = 230;
+                int height = 200;
+                Image scaledImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                lblImagePreview.setIcon(new ImageIcon(scaledImg));
+                lblImagePreview.setText("");
+            }
+        } catch (IOException ex) {
+            lblImagePreview.setIcon(null);
+            lblImagePreview.setText("Error al cargar imagen");
+            ex.printStackTrace();
+        }
     }
     
     /**

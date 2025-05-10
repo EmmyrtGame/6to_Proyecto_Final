@@ -18,7 +18,7 @@ public class ProductosDAO {
      */
     public List<Productos> obtenerTodos() {
         List<Productos> lista = new ArrayList<>();
-        String sql = "SELECT id, nombre, descripcion, precio, proveedor, categoria, cantidad, codigo FROM productos";
+        String sql = "SELECT id, nombre, descripcion, precio, proveedor, categoria, cantidad, codigo, imagen FROM productos";
         try {
             ResultSet rs = db.obtenerSentencia(sql);
             while (rs.next()) {
@@ -30,7 +30,8 @@ public class ProductosDAO {
                     rs.getString("proveedor"),
                     rs.getString("categoria"),
                     rs.getInt("cantidad"),
-                    rs.getString("codigo")
+                    rs.getString("codigo"),
+                    rs.getString("imagen")
                 );
                 lista.add(p);
             }
@@ -47,7 +48,7 @@ public class ProductosDAO {
      */
     public List<Productos> obtenerBusqueda(String busqueda, String filtro) {
         List<Productos> lista = new ArrayList<>();
-        String sql = "SELECT id, nombre, descripcion, precio, proveedor, categoria, cantidad, codigo FROM productos";
+        String sql = "SELECT id, nombre, descripcion, precio, proveedor, categoria, cantidad, codigo, imagen FROM productos";
         
         // Agregar cláusula WHERE si la cadena de búsqueda no está vacía
         if (busqueda != null && !busqueda.isEmpty()) {
@@ -99,7 +100,8 @@ public class ProductosDAO {
                     rs.getString("proveedor"),
                     rs.getString("categoria"),
                     rs.getInt("cantidad"),
-                    rs.getString("codigo")
+                    rs.getString("codigo"),
+                    rs.getString("imagen")
                 );
                 lista.add(p);
             }
