@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import java.awt.Font;
 import java.awt.FlowLayout;
@@ -14,6 +15,9 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class ModalAgregar extends JDialog {
 
@@ -24,6 +28,7 @@ public class ModalAgregar extends JDialog {
 	private JTextField txtCategoria;
 	private JTextField txtCantidad;
 	private JTextField txtCodigo;
+	private ProductosDAO producto = null;
 
 	/**
 	 * Launch the application.
@@ -48,6 +53,7 @@ public class ModalAgregar extends JDialog {
 	 * Create the dialog.
 	 */
 	public ModalAgregar() {
+		producto = new ProductosDAO();
 		setModal(true);
 		setSize(650, 750);
 		setResizable(false);
@@ -149,10 +155,44 @@ public class ModalAgregar extends JDialog {
 		pnlDatos.add(txtCodigo);
 		
 		JPanel pnlImagen = new JPanel();
-		pnlImagen.setBounds(10, 433, 614, 267);
+		pnlImagen.setBounds(10, 433, 614, 234);
 		getContentPane().add(pnlImagen);
 		pnlImagen.setLayout(null);
 		pnlImagen.setBorder(BorderFactory.createTitledBorder( BorderFactory.createLineBorder(Color.BLACK), "Imagen", 1, 2, new Font("Century Gothic", Font.BOLD, 18)));
+		
+		JButton btnGuardar = new JButton("Guardar");
+		btnGuardar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String nombreInput = txtNombre.getText();
+				String descInput = txtDescripcion.getText();
+				Double precioInput = Double.parseDouble(txtPrecio.getText());
+				int cantidadInput = Integer.parseInt(txtCantidad.getText());
+				String proveedorInput = txtProveedor.getText();
+				String categoriaInput = txtCategoria.getText();
+				String codigoInput = txtCodigo.getText();
+				
+				boolean resultado = producto.insertar(nombreInput, descInput, precioInput, cantidadInput, proveedorInput, categoriaInput, codigoInput);
+				
+				if (resultado) {
+		            JOptionPane.showMessageDialog(null, "Producto guardado con éxito",  "Éxito", JOptionPane.INFORMATION_MESSAGE);
+		        } else {
+		            JOptionPane.showMessageDialog(null, "Error al guardar el producto", "Error", JOptionPane.ERROR_MESSAGE);
+		        }
+			}
+		});
+		btnGuardar.setFont(new Font("Century Gothic", Font.BOLD, 14));
+		btnGuardar.setBounds(184, 678, 106, 23);
+		getContentPane().add(btnGuardar);
+		
+		JButton btnCancelar = new JButton("Cancelar");
+		btnCancelar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		btnCancelar.setFont(new Font("Century Gothic", Font.BOLD, 14));
+		btnCancelar.setBounds(338, 678, 106, 23);
+		getContentPane().add(btnCancelar);
 
 		
 		setVisible(true);

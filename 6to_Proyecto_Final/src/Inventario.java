@@ -31,7 +31,7 @@ public class Inventario extends JPanel {
         JPanel top = new JPanel();
         top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
         JLabel title = new JLabel("Inventario");
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 24f));
+        title.setFont(new Font("Century Gothic", Font.BOLD, 24));
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         titlePanel.add(title);
         top.add(titlePanel);
@@ -56,6 +56,7 @@ public class Inventario extends JPanel {
         comboGbc.weighty = 1.0;
         comboGbc.insets = new Insets(0, 5, 0, 5);
         cmbFiltro = new JComboBox<>(new String[] { "Todos", "Nombre", "Descripción", "Precio", "Proveedor", "Categoría", "Cantidad", "Código" });
+        cmbFiltro.setFont(new Font("Century Gothic", Font.BOLD, 12));
         cmbFiltro.setPreferredSize(new Dimension(120, 30));
         busquedaPanel.add(cmbFiltro, comboGbc);
 
@@ -67,6 +68,7 @@ public class Inventario extends JPanel {
         txtBusquedaGbc.fill = GridBagConstraints.HORIZONTAL;
         txtBusquedaGbc.insets = new Insets(0, 5, 0, 5);
         txtBusqueda = new JTextField();
+        txtBusqueda.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         txtBusqueda.setPreferredSize(new Dimension(300, 30));
         busquedaPanel.add(txtBusqueda, txtBusquedaGbc);
 
@@ -76,6 +78,7 @@ public class Inventario extends JPanel {
         buttonGbc.gridy = 1;
         buttonGbc.insets = new Insets(0, 5, 0, 5);
         JButton searchButton = new JButton("Buscar");
+        searchButton.setFont(new Font("Century Gothic", Font.BOLD, 12));
         searchButton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		String busquedaInput = txtBusqueda.getText();
@@ -98,6 +101,7 @@ public class Inventario extends JPanel {
         bottom.setLayout(new FlowLayout(FlowLayout.RIGHT));
         
         JButton btnEliminar = new JButton("Eliminar Producto");
+        btnEliminar.setFont(new Font("Century Gothic", Font.BOLD, 12));
         btnEliminar.setBackground(new Color(255, 100, 100));
         btnEliminar.setForeground(Color.WHITE);
         btnEliminar.setFocusPainted(false);
@@ -108,6 +112,7 @@ public class Inventario extends JPanel {
         });
         
         JButton btnAgregar = new JButton("Agregar");
+        btnAgregar.setFont(new Font("Century Gothic", Font.BOLD, 12));
         btnAgregar.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		mostrarModalAgregar();
@@ -135,6 +140,7 @@ public class Inventario extends JPanel {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         };
         tblInventario = new JTable(model);
+        tblInventario.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         tblInventario.setFillsViewportHeight(true);
         add(new JScrollPane(tblInventario), BorderLayout.CENTER);
     }
