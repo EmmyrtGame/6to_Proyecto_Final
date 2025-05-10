@@ -129,6 +129,7 @@ public class Inventario extends JPanel {
      */
     private void mostrarModalAgregar() {
     	ModalAgregar agregar = new ModalAgregar();
+    	cargarProductos();
     }
 
     /**

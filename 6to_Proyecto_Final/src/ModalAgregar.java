@@ -8,7 +8,10 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.FlowLayout;
 
 import javax.swing.border.Border;
@@ -30,7 +33,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-
+import java.awt.FileDialog;
+import java.awt.Frame;
+import javax.swing.SwingUtilities;
+import java.io.File;
+import java.io.FilenameFilter;
 
 public class ModalAgregar extends JDialog {
 
@@ -193,7 +200,7 @@ public class ModalAgregar extends JDialog {
 		btnExaminar.setBounds(450, 40, 120, 25);
 		btnExaminar.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
-		        seleccionarImagen();
+		    	seleccionarImagen();
 		    }
 		});
 		pnlImagen.add(btnExaminar);
@@ -229,6 +236,7 @@ public class ModalAgregar extends JDialog {
 				
 				if (resultado) {
 		            JOptionPane.showMessageDialog(null, "Producto guardado con éxito",  "Éxito", JOptionPane.INFORMATION_MESSAGE);
+		            dispose();
 		        } else {
 		            JOptionPane.showMessageDialog(null, "Error al guardar el producto", "Error", JOptionPane.ERROR_MESSAGE);
 		        }
@@ -252,49 +260,33 @@ public class ModalAgregar extends JDialog {
 		setVisible(true);
 	}
 	
+	/**
+	 * Método par abrir el explorador de archivos y seleccionar la imagen
+	 */
 	private void seleccionarImagen() {
-	    JFileChooser fileChooser = new JFileChooser();
-	    fileChooser.setDialogTitle("Seleccionar Imagen");
-	    
-	    fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
-	        @Override
-	        public boolean accept(File f) {
-	            if (f.isDirectory()) {
-	                return true;
-	            }
-	            String extension = getExtension(f);
-	            return extension != null && (extension.equals("jpg") || 
-	                    extension.equals("jpeg") || 
-	                    extension.equals("png") || 
-	                    extension.equals("gif"));
+	    Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
+
+	    FileDialog fileDialog = new FileDialog(parent, "Seleccionar Imagen", FileDialog.LOAD);
+	    fileDialog.setDirectory(System.getProperty("user.home"));
+	    fileDialog.setVisible(true);
+
+	    String dir = fileDialog.getDirectory();
+	    String file = fileDialog.getFile();
+	    if (dir != null && file != null) {
+	    	if (!file.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif)$")) {
+	            JOptionPane.showMessageDialog(null, "Formato no permitido (permitidos: .jpg, .jpeg, .png)", "Error", JOptionPane.ERROR_MESSAGE);
+	            return;
 	        }
-	        
-	        @Override
-	        public String getDescription() {
-	            return "Archivos de Imagen (*.jpg, *.jpeg, *.png, *.gif)";
-	        }
-	        
-	        private String getExtension(File f) {
-	            String name = f.getName();
-	            int lastIndex = name.lastIndexOf('.');
-	            if (lastIndex > 0 && lastIndex < name.length() - 1) {
-	                return name.substring(lastIndex + 1).toLowerCase();
-	            }
-	            return null;
-	        }
-	    });
-	    
-	    fileChooser.setAccessory(new ImagePreview(fileChooser));
-	    
-	    int result = fileChooser.showOpenDialog(this);
-	    if (result == JFileChooser.APPROVE_OPTION) {
-	        File selectedFile = fileChooser.getSelectedFile();
+	        File selectedFile = new File(dir, file);
 	        selectedImagePath = selectedFile.getAbsolutePath();
 	        txtImagePath.setText(selectedImagePath);
 	        mostrarVistaPrevia(selectedFile);
 	    }
 	}
 
+	/**
+	 * Método que muestra la vista previa de la imagen
+	 */
 	private void mostrarVistaPrevia(File file) {
 	    try {
 	        Image originalImage = ImageIO.read(file);
@@ -314,6 +306,9 @@ public class ModalAgregar extends JDialog {
 	    }
 	}
 	
+	/**
+	 * Método para guardar la imagen y retorna su ruta
+	 */
 	private String guardarImagen(String rutaOrigen, String codigoProducto) {
 	    try {
 	        String directorioProyecto = System.getProperty("user.dir");
