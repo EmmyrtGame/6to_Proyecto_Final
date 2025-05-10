@@ -18,6 +18,19 @@ import javax.swing.JTextArea;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JFileChooser;
+import javax.swing.ImageIcon;
+import java.io.File;
+import javax.imageio.ImageIO;
+import java.awt.Image;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+
 
 public class ModalAgregar extends JDialog {
 
@@ -28,6 +41,10 @@ public class ModalAgregar extends JDialog {
 	private JTextField txtCategoria;
 	private JTextField txtCantidad;
 	private JTextField txtCodigo;
+	private JLabel lblImagePreview;
+	private JTextField txtImagePath;
+	private String selectedImagePath;
+	private String savedImageName;
 	private ProductosDAO producto = null;
 
 	/**
@@ -160,6 +177,38 @@ public class ModalAgregar extends JDialog {
 		pnlImagen.setLayout(null);
 		pnlImagen.setBorder(BorderFactory.createTitledBorder( BorderFactory.createLineBorder(Color.BLACK), "Imagen", 1, 2, new Font("Century Gothic", Font.BOLD, 18)));
 		
+		JLabel lblRuta = new JLabel("Ruta:");
+		lblRuta.setFont(new Font("Century Gothic", Font.BOLD, 16));
+		lblRuta.setBounds(20, 40, 83, 20);
+		pnlImagen.add(lblRuta);
+
+		txtImagePath = new JTextField();
+		txtImagePath.setEditable(false);
+		txtImagePath.setFont(new Font("Century Gothic", Font.PLAIN, 14));
+		txtImagePath.setBounds(80, 40, 350, 25);
+		pnlImagen.add(txtImagePath);
+
+		JButton btnExaminar = new JButton("Examinar...");
+		btnExaminar.setFont(new Font("Century Gothic", Font.BOLD, 14));
+		btnExaminar.setBounds(450, 40, 120, 25);
+		btnExaminar.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        seleccionarImagen();
+		    }
+		});
+		pnlImagen.add(btnExaminar);
+
+		// Panel para la vista previa de la imagen
+		JPanel previewPanel = new JPanel();
+		previewPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		previewPanel.setBounds(150, 80, 300, 140);
+		previewPanel.setLayout(new BorderLayout());
+		pnlImagen.add(previewPanel);
+
+		lblImagePreview = new JLabel("Sin imagen seleccionada", SwingConstants.CENTER);
+		lblImagePreview.setFont(new Font("Century Gothic", Font.PLAIN, 14));
+		previewPanel.add(lblImagePreview, BorderLayout.CENTER);
+		
 		JButton btnGuardar = new JButton("Guardar");
 		btnGuardar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -171,7 +220,12 @@ public class ModalAgregar extends JDialog {
 				String categoriaInput = txtCategoria.getText();
 				String codigoInput = txtCodigo.getText();
 				
-				boolean resultado = producto.insertar(nombreInput, descInput, precioInput, cantidadInput, proveedorInput, categoriaInput, codigoInput);
+				String imagenPath = null;
+		        if (selectedImagePath != null && !selectedImagePath.isEmpty()) {
+		            imagenPath = guardarImagen(selectedImagePath, codigoInput);
+		        }
+				
+				boolean resultado = producto.insertar(nombreInput, descInput, precioInput, cantidadInput, proveedorInput, categoriaInput, codigoInput, imagenPath);
 				
 				if (resultado) {
 		            JOptionPane.showMessageDialog(null, "Producto guardado con éxito",  "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -196,5 +250,95 @@ public class ModalAgregar extends JDialog {
 
 		
 		setVisible(true);
+	}
+	
+	private void seleccionarImagen() {
+	    JFileChooser fileChooser = new JFileChooser();
+	    fileChooser.setDialogTitle("Seleccionar Imagen");
+	    
+	    fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+	        @Override
+	        public boolean accept(File f) {
+	            if (f.isDirectory()) {
+	                return true;
+	            }
+	            String extension = getExtension(f);
+	            return extension != null && (extension.equals("jpg") || 
+	                    extension.equals("jpeg") || 
+	                    extension.equals("png") || 
+	                    extension.equals("gif"));
+	        }
+	        
+	        @Override
+	        public String getDescription() {
+	            return "Archivos de Imagen (*.jpg, *.jpeg, *.png, *.gif)";
+	        }
+	        
+	        private String getExtension(File f) {
+	            String name = f.getName();
+	            int lastIndex = name.lastIndexOf('.');
+	            if (lastIndex > 0 && lastIndex < name.length() - 1) {
+	                return name.substring(lastIndex + 1).toLowerCase();
+	            }
+	            return null;
+	        }
+	    });
+	    
+	    fileChooser.setAccessory(new ImagePreview(fileChooser));
+	    
+	    int result = fileChooser.showOpenDialog(this);
+	    if (result == JFileChooser.APPROVE_OPTION) {
+	        File selectedFile = fileChooser.getSelectedFile();
+	        selectedImagePath = selectedFile.getAbsolutePath();
+	        txtImagePath.setText(selectedImagePath);
+	        mostrarVistaPrevia(selectedFile);
+	    }
+	}
+
+	private void mostrarVistaPrevia(File file) {
+	    try {
+	        Image originalImage = ImageIO.read(file);
+	        
+	        if (originalImage != null) {
+	            int previewWidth = 290;
+	            int previewHeight = 130;
+	            Image scaledImage = originalImage.getScaledInstance(previewWidth, previewHeight, Image.SCALE_SMOOTH);
+	            
+	            lblImagePreview.setIcon(new ImageIcon(scaledImage));
+	            lblImagePreview.setText("");
+	        }
+	    } catch (IOException ex) {
+	        lblImagePreview.setIcon(null);
+	        lblImagePreview.setText("Error al cargar la imagen");
+	        ex.printStackTrace();
+	    }
+	}
+	
+	private String guardarImagen(String rutaOrigen, String codigoProducto) {
+	    try {
+	        String directorioProyecto = System.getProperty("user.dir");
+	        Path rutaCarpetaImagenes = Paths.get(directorioProyecto, "imagenes");
+	        
+	        if (!Files.exists(rutaCarpetaImagenes)) {
+	            Files.createDirectory(rutaCarpetaImagenes);
+	        }
+	        
+	        File archivoOrigen = new File(rutaOrigen);
+	        String nombreArchivo = archivoOrigen.getName();
+	        String extension = nombreArchivo.substring(nombreArchivo.lastIndexOf('.'));
+	        
+	        String nuevoNombre = "producto_" + codigoProducto + extension;
+	        Path rutaDestino = Paths.get(rutaCarpetaImagenes.toString(), nuevoNombre);
+	        
+	        Files.copy(Paths.get(rutaOrigen), rutaDestino, StandardCopyOption.REPLACE_EXISTING);
+	        
+	        return "imagenes/" + nuevoNombre;
+	        
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Error al guardar la imagen: " + e.getMessage(), 
+	                                     "Error", JOptionPane.ERROR_MESSAGE);
+	        return null;
+	    }
 	}
 }

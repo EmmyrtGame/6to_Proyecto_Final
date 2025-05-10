@@ -113,14 +113,15 @@ public class ProductosDAO {
     }
     
     /**
-     * Inserta un nuevo registro en la dase de datos
+     * Inserta un nuevo producto en la base de datos
      */
     public boolean insertar(String nombre, String descripcion, Double precio, int cantidad, 
-                           String proveedor, String categoria, String codigo) {
+                           String proveedor, String categoria, String codigo, String rutaImagen) {
         String sql = String.format(
-            "INSERT INTO productos (nombre, descripcion, precio, proveedor, categoria, cantidad, codigo) " +
-            "VALUES ('%s', '%s', %f, '%s', '%s', %d, '%s')", 
-            nombre, descripcion, precio, proveedor, categoria, cantidad, codigo
+            "INSERT INTO productos (nombre, descripcion, precio, proveedor, categoria, cantidad, codigo, imagen) " +
+            "VALUES ('%s', '%s', %f, '%s', '%s', %d, '%s', '%s')", 
+            nombre, descripcion, precio, proveedor, categoria, cantidad, codigo, 
+            (rutaImagen != null ? rutaImagen : "")
         );
         return db.ejecutarSentencia(sql);
     }
