@@ -56,19 +56,23 @@ public class Validator {
 	
 	public static String validarNombre(String nombre) {
 		        nombre = nombre.trim();
+		        
+		        if(nombre.isEmpty()) {
+		        	return "El nombre está vacío";
+		        }
 
 		        if (nombre.length() < 5) {
 		            return "El nombre es demasiado corto.";
 		        }
-		        if (nombre.length() > 70) {
+		        if (nombre.length() > 60) {
 		            return "El nombre es demasiado largo.";
 		        }
 
-		        if (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
-		            return "El nombre solo puede contener letras, espacios y acentos.";
+		        if (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]+")) {
+		            return "El nombre solo puede contener letras, números, espacios y acentos.";
 		        }
 		        return "correcto";
-		    }
+	}
 	
 	
 	public static String validarDescripcion(String descripcion) {
@@ -83,7 +87,7 @@ public class Validator {
 		}
 		
 		if (descripcion.length() < 5) {
-            return "El nombre es demasiado corto.";
+            return "La descripción es demasiado corta.";
         }
 		if(descripcion.length() > 70) {
 			
@@ -121,11 +125,11 @@ public class Validator {
 	public static String validarProveedor(String proveedor) {
 		
 		if(proveedor.trim().isEmpty()) {
-			return "El provvedor está vacío";
+			return "El proveedor está vacío";
 		}
 		
 		if (proveedor.length() < 5) {
-            return "El nombre es demasiado corto.";
+            return "El proveedor es demasiado corto.";
         }
 		if(proveedor.length() > 70) {
 			
@@ -143,11 +147,11 @@ public class Validator {
 	public static String validarCategoria(String categoria) {
 		
 		if(categoria.trim().isEmpty()) {
-			return "La ctegoría está vacía";
+			return "La categoría está vacía";
 		}
 		
 		if (categoria.length() < 5) {
-            return "El nombre es demasiado corto.";
+            return "La categoría es demasiado corta.";
         }
 		
 		if(!categoria.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
