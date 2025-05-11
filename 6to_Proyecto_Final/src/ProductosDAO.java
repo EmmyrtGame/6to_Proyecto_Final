@@ -127,6 +127,21 @@ public class ProductosDAO {
         );
         return db.ejecutarSentencia(sql);
     }
+    
+    /**
+     * Método para actualizar un producto de la base de datos.
+     */
+    public boolean actualizarProducto(int id, String nombre, String descripcion, double precio, 
+		            int cantidad, String proveedor, String categoria, 
+		            String codigo, String rutaImagen) {
+		String sql = String.format(
+		"UPDATE productos SET nombre='%s', descripcion='%s', precio=%f, proveedor='%s', " +
+		"categoria='%s', cantidad=%d, codigo='%s', imagen='%s' WHERE id=%d",
+		nombre, descripcion, precio, proveedor, categoria, cantidad, codigo, 
+		(rutaImagen != null ? rutaImagen : ""), id
+		);
+		return db.ejecutarSentencia(sql);
+	}
 
     
     /**

@@ -82,8 +82,8 @@ public class Validator {
 			return "La descripción está vacía";
 		}
 		
-		if(!descripcion.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
-			return "Solo se pueden poner letras y espacios";
+		if(!descripcion.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]+")) {
+			return "La descripción solo puede contener letras, números, espacios y acentos.";
 		}
 		
 		if (descripcion.length() < 5) {
@@ -128,7 +128,7 @@ public class Validator {
 			return "El proveedor está vacío";
 		}
 		
-		if (proveedor.length() < 5) {
+		if (proveedor.length() < 3) {
             return "El proveedor es demasiado corto.";
         }
 		if(proveedor.length() > 70) {
@@ -136,8 +136,8 @@ public class Validator {
 			return "Descripción muy larga";
 		}
 		
-		if(!proveedor.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
-			return "Solo se pueden poner letras y espacios";
+		if(!proveedor.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]+")) {
+			return "El proveedor solo puede contener letras, números, espacios y acentos.";
 		}
 		
 		return "correcto";

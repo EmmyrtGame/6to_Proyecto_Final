@@ -130,6 +130,7 @@ public class Inventario extends JPanel {
         JButton btnActualizar = new JButton("Actualizar");
         btnActualizar.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		mostrarModalEditar();
         	}
         });
         btnActualizar.setFont(new Font("Century Gothic", Font.BOLD, 12));
@@ -146,6 +147,34 @@ public class Inventario extends JPanel {
     private void mostrarModalAgregar() {
     	ModalAgregar agregar = new ModalAgregar();
     	cargarProductos();
+    }
+    
+    /**
+     * Método para mostrar el modal de editar
+     */
+    private void mostrarModalEditar() {
+	    int filaSeleccionada = tblInventario.getSelectedRow();
+	    if (filaSeleccionada >= 0) {
+	    	String nombre = (String) tblInventario.getValueAt(filaSeleccionada, 0);
+	    	String descripcion = (String) tblInventario.getValueAt(filaSeleccionada, 1);
+	    	Double precio = (double) tblInventario.getValueAt(filaSeleccionada, 2);
+	    	String proveedor = (String) tblInventario.getValueAt(filaSeleccionada, 3);
+	    	String categoria = (String) tblInventario.getValueAt(filaSeleccionada, 4);
+	    	int cantidad = (int) tblInventario.getValueAt(filaSeleccionada, 5);
+	    	String codigo = (String) tblInventario.getValueAt(filaSeleccionada, 6);
+	    	int id = (int) dao.obtenerBusqueda(codigo, "Código").get(0).getId();
+	    	String imagen = (String) dao.obtenerBusqueda(codigo, "Código").get(0).getRutaImagen();
+	    	
+	    	ModalEditar modalEditar = new ModalEditar(id, nombre, descripcion, precio, cantidad, proveedor, categoria, codigo, imagen);
+	    } else {
+	    	JOptionPane.showMessageDialog(
+                this,
+                "Por favor, seleccione un producto de la tabla",
+                "Aviso",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+	    }
+	    cargarProductos();
     }
     
     /**
