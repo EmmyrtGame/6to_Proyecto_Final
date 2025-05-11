@@ -117,6 +117,10 @@ public class Usuarios extends JPanel {
         tblUsuarios = new JTable(model);
         tblUsuarios.setFont(new Font("Tahoma", Font.PLAIN, 12));
         tblUsuarios.setFillsViewportHeight(true);
+        tblUsuarios.getColumnModel().getColumn(0).setMinWidth(0);
+        tblUsuarios.getColumnModel().getColumn(0).setMaxWidth(0);
+        tblUsuarios.getColumnModel().getColumn(0).setWidth(0);
+        tblUsuarios.getColumnModel().getColumn(0).setPreferredWidth(0);
 
         // Listener para selección en la tabla
         tblUsuarios.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
