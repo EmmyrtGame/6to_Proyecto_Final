@@ -9,6 +9,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.text.InternationalFormatter;
+import javax.swing.text.MaskFormatter;
+import javax.swing.text.NumberFormatter;
+import javax.swing.JFormattedTextField;
+import java.text.ParseException;
 
 import java.awt.Font;
 import java.awt.Frame;
@@ -38,6 +43,8 @@ import java.awt.Frame;
 import javax.swing.SwingUtilities;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 public class ModalAgregar extends JDialog {
 
@@ -128,9 +135,17 @@ public class ModalAgregar extends JDialog {
 		lblPrecio.setBounds(20, 175, 137, 14);
 		pnlDatos.add(lblPrecio);
 		
-		txtPrecio = new JTextField();
+		DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+		decimalFormat.setMinimumFractionDigits(2);
+		decimalFormat.setMaximumFractionDigits(2);
+		NumberFormatter priceFormatter = new NumberFormatter(decimalFormat);
+		priceFormatter.setValueClass(Double.class);
+		priceFormatter.setMinimum(0.0);
+		priceFormatter.setAllowsInvalid(false);
+		priceFormatter.setCommitsOnValidEdit(true);
+		txtPrecio = new JFormattedTextField(priceFormatter);
+		txtPrecio.setText("0.00");
 		txtPrecio.setFont(new Font("Century Gothic", Font.PLAIN, 16));
-		txtPrecio.setColumns(10);
 		txtPrecio.setBounds(152, 172, 123, 20);
 		pnlDatos.add(txtPrecio);
 		
@@ -161,9 +176,15 @@ public class ModalAgregar extends JDialog {
 		lblCantidad.setBounds(20, 200, 137, 20);
 		pnlDatos.add(lblCantidad);
 		
-		txtCantidad = new JTextField();
+		
+		NumberFormatter qtyFormatter = new NumberFormatter(NumberFormat.getIntegerInstance());
+		qtyFormatter.setValueClass(Integer.class);
+		qtyFormatter.setMinimum(0);
+		qtyFormatter.setAllowsInvalid(false);
+		qtyFormatter.setCommitsOnValidEdit(true);
+		txtCantidad = new JFormattedTextField(qtyFormatter);
+		txtCantidad.setText("1");
 		txtCantidad.setFont(new Font("Century Gothic", Font.PLAIN, 16));
-		txtCantidad.setColumns(10);
 		txtCantidad.setBounds(152, 203, 123, 20);
 		pnlDatos.add(txtCantidad);
 		
@@ -172,9 +193,15 @@ public class ModalAgregar extends JDialog {
 		lblCodigo.setBounds(20, 314, 137, 20);
 		pnlDatos.add(lblCodigo);
 		
-		txtCodigo = new JTextField();
+		MaskFormatter maskCodigo;
+		try {
+		    maskCodigo = new MaskFormatter("######"); // 6 dígitos obligatorios
+		    txtCodigo = new JFormattedTextField(maskCodigo);
+		} catch (ParseException e) {
+		    e.printStackTrace();
+		    txtCodigo = new JTextField(); // Fallback en caso de error
+		}
 		txtCodigo.setFont(new Font("Century Gothic", Font.PLAIN, 16));
-		txtCodigo.setColumns(10);
 		txtCodigo.setBounds(152, 314, 245, 20);
 		pnlDatos.add(txtCodigo);
 		
