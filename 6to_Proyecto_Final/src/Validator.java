@@ -171,7 +171,7 @@ public class Validator {
 		try {
 			int cantidad = Integer.parseInt(cantidadStrng);
 			if(cantidad <= 0) {
-				return "Precio incorrecto (debe de sser mayoir a 0)";
+				return "Cantidad incorrecta (debe de ser mayor a 0)";
 			}
 		}catch(NumberFormatException e) {
 			return "La cantidad debe de ser un valo numérico entero";

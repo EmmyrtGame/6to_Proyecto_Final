@@ -17,7 +17,7 @@ public class Login extends JFrame {
 
         // Panel de fondo
         JPanel background = new JPanel();
-        background.setBackground(new Color(10, 80, 150));
+        background.setBackground(new Color(128, 0, 0));
         background.setLayout(null);
         getContentPane().add(background);
 
@@ -42,6 +42,7 @@ public class Login extends JFrame {
         card.add(lblUser);
 
         JTextField txtUser = new JTextField();
+        txtUser.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         txtUser.setBounds(150, 117, 200, 25);
         card.add(txtUser);
 
@@ -53,11 +54,13 @@ public class Login extends JFrame {
         card.add(lblContra);
         
         txtContra = new JTextField();
+        txtContra.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         txtContra.setBounds(150, 159, 200, 25);
         card.add(txtContra);
 
         // Botón de LOGIN
         JButton loginBtn = new JButton("Iniciar Sesión");
+        loginBtn.setFont(new Font("Century Gothic", Font.BOLD, 12));
         loginBtn.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		String userInput = txtUser.getText();
@@ -79,7 +82,7 @@ public class Login extends JFrame {
         		}
         	}
         });
-        loginBtn.setBackground(new Color(0, 150, 200));
+        loginBtn.setBackground(new Color(128, 0, 0));
         loginBtn.setForeground(Color.WHITE);
         loginBtn.setFocusPainted(false);
         loginBtn.setBounds(150, 207, 200, 30);

@@ -28,8 +28,8 @@ public class Inventario extends JPanel {
         iniciarPanelSuperior(); // Procedimiento que inicializa el panel superior (barra de búsqueda)
         iniciarTabla(); // Procedimiento que inicializa la tabla de datos
         iniciarPanelVistaPrevia();
-        iniciarPanelInferior();
         cargarProductos(); // Procedimiento que carga los datos de la base de datos
+        iniciarPanelInferior(); // Procedimiento que inicializa el panel inferior (botones de acción)
     }
 
     /**
@@ -105,8 +105,9 @@ public class Inventario extends JPanel {
      * Procedimiento que inicializa el panel inferior con botones de acción
      */
     private void iniciarPanelInferior() {
-        JPanel bottom = new JPanel();
-        bottom.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        JPanel bottom = new JPanel(new BorderLayout(10, 0)); // Espacio horizontal de 10px
+        
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         
         JButton btnEliminar = new JButton("Eliminar Producto");
         btnEliminar.setFont(new Font("Century Gothic", Font.BOLD, 12));
@@ -122,22 +123,30 @@ public class Inventario extends JPanel {
         JButton btnAgregar = new JButton("Agregar");
         btnAgregar.setFont(new Font("Century Gothic", Font.BOLD, 12));
         btnAgregar.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		mostrarModalAgregar();
-        	}
+            public void actionPerformed(ActionEvent e) {
+                mostrarModalAgregar();
+            }
         });
         
         JButton btnActualizar = new JButton("Actualizar");
         btnActualizar.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		mostrarModalEditar();
-        	}
+            public void actionPerformed(ActionEvent e) {
+                mostrarModalEditar();
+            }
         });
         btnActualizar.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        bottom.add(btnActualizar);
         
-        bottom.add(btnAgregar);
-        bottom.add(btnEliminar);
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel lblRegistros = new JLabel((tblInventario.getRowCount()-1) + " productos");
+        leftPanel.add(lblRegistros);
+        
+        rightPanel.add(btnActualizar);
+        rightPanel.add(btnAgregar);
+        rightPanel.add(btnEliminar);
+        
+        bottom.add(leftPanel, BorderLayout.WEST);
+        bottom.add(rightPanel, BorderLayout.EAST);
+        
         add(bottom, BorderLayout.SOUTH);
     }
 
