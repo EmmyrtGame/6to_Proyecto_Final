@@ -128,6 +128,10 @@ public class Inventario extends JPanel {
         });
         
         JButton btnActualizar = new JButton("Actualizar");
+        btnActualizar.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        	}
+        });
         btnActualizar.setFont(new Font("Century Gothic", Font.BOLD, 12));
         bottom.add(btnActualizar);
         
