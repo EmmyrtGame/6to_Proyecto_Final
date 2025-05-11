@@ -127,6 +127,10 @@ public class Inventario extends JPanel {
         	}
         });
         
+        JButton btnActualizar = new JButton("Actualizar");
+        btnActualizar.setFont(new Font("Century Gothic", Font.BOLD, 12));
+        bottom.add(btnActualizar);
+        
         bottom.add(btnAgregar);
         bottom.add(btnEliminar);
         add(bottom, BorderLayout.SOUTH);
@@ -311,9 +315,26 @@ public class Inventario extends JPanel {
                 List<Productos> productos = dao.obtenerBusqueda(codigo, "Código");
                 if (!productos.isEmpty()) {
                     int id = productos.get(0).getId();
+                    String rutaImagen = productos.get(0).getRutaImagen();
                     boolean eliminado = dao.eliminar(id);
                     
                     if (eliminado) {
+                        // Eliminar la imagen del sistema de archivos si existe
+                        if (rutaImagen != null && !rutaImagen.isEmpty()) {
+                            File archivoImagen = new File(rutaImagen);
+                            if (archivoImagen.exists()) {
+                                boolean imagenEliminada = archivoImagen.delete();
+                                if (!imagenEliminada) {
+                                    JOptionPane.showMessageDialog(
+                                        this,
+                                        "Producto eliminado, pero no se pudo eliminar la imagen asociada.",
+                                        "Advertencia",
+                                        JOptionPane.WARNING_MESSAGE
+                                    );
+                                }
+                            }
+                        }
+                        
                         JOptionPane.showMessageDialog(
                             this,
                             "Producto eliminado con éxito",
