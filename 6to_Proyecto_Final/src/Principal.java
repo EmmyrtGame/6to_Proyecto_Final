@@ -53,7 +53,7 @@ public class Principal extends JFrame {
         if (this.rol.equals("Admin")) {
         	addSidebarButton("Inventario", Inventario::new);
         	addSidebarButton("Ventas", Ventas::new);
-        	addSidebarButton("Usuarios", Usuarios::new);
+        	addSidebarButton("Usuarios", () -> new Usuarios(sesion));
         }
         addLogoutButton();
 
