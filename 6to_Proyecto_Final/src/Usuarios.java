@@ -17,7 +17,7 @@ public class Usuarios extends JPanel {
     private Sesion sesionActual;
     
     // Componentes para el formulario de edición/creación
-    private JTextField txtId;
+    private JTextField txtEditando;
     private JTextField txtUsuario;
     private JPasswordField txtContrasena;
     private JTextField txtNombre;
@@ -25,6 +25,7 @@ public class Usuarios extends JPanel {
     private JButton btnGuardar;
     private JButton btnLimpiar;
     private JButton btnEliminar;
+    private JLabel lblEditando;
     
     private boolean modoEdicion = false;
     private int idUsuarioSeleccionado = -1;
@@ -142,65 +143,39 @@ public class Usuarios extends JPanel {
         panelEdicion.setPreferredSize(new Dimension(300, 0));
         panelEdicion.setLayout(new GridBagLayout());
         
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        
         // Campo ID (solo lectura)
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panelEdicion.add(new JLabel("ID:"), gbc);
+        lblEditando = new JLabel("Editando a: ");
+        lblEditando.setVisible(modoEdicion);
+        agregarComponente(panelEdicion, lblEditando, 0, 0, GridBagConstraints.NONE, 0.0);
         
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
-        txtId = new JTextField();
-        txtId.setEditable(false);
-        panelEdicion.add(txtId, gbc);
+        txtEditando = new JTextField();
+        txtEditando.setEditable(false);
+        txtEditando.setVisible(modoEdicion);
+        agregarComponente(panelEdicion, txtEditando, 1, 0, GridBagConstraints.HORIZONTAL, 1.0);
         
         // Campo Usuario
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 0.0;
-        panelEdicion.add(new JLabel("Usuario:"), gbc);
+        agregarComponente(panelEdicion, new JLabel("Usuario:"), 0, 1, GridBagConstraints.NONE, 0.0);
         
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
         txtUsuario = new JTextField();
-        panelEdicion.add(txtUsuario, gbc);
+        agregarComponente(panelEdicion, txtUsuario, 1, 1, GridBagConstraints.HORIZONTAL, 1.0);
         
         // Campo Contraseña
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.weightx = 0.0;
-        panelEdicion.add(new JLabel("Contraseña:"), gbc);
+        agregarComponente(panelEdicion, new JLabel("Contraseña:"), 0, 2, GridBagConstraints.NONE, 0.0);
         
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
         txtContrasena = new JPasswordField();
-        panelEdicion.add(txtContrasena, gbc);
+        agregarComponente(panelEdicion, txtContrasena, 1, 2, GridBagConstraints.HORIZONTAL, 1.0);
         
         // Campo Nombre
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.weightx = 0.0;
-        panelEdicion.add(new JLabel("Nombre:"), gbc);
+        agregarComponente(panelEdicion, new JLabel("Nombre:"), 0, 3, GridBagConstraints.NONE, 0.0);
         
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
         txtNombre = new JTextField();
-        panelEdicion.add(txtNombre, gbc);
+        agregarComponente(panelEdicion, txtNombre, 1, 3, GridBagConstraints.HORIZONTAL, 1.0);
         
         // Selector de Rol
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.weightx = 0.0;
-        panelEdicion.add(new JLabel("Rol:"), gbc);
+        agregarComponente(panelEdicion, new JLabel("Rol:"), 0, 4, GridBagConstraints.NONE, 0.0);
         
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
         cmbRol = new JComboBox<>(new String[]{"Admin", "Usuario"});
-        panelEdicion.add(cmbRol, gbc);
+        agregarComponente(panelEdicion, cmbRol, 1, 4, GridBagConstraints.HORIZONTAL, 1.0);
         
         // Panel de botones
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -220,22 +195,44 @@ public class Usuarios extends JPanel {
         btnEliminar.setFont(new Font("Century Gothic", Font.BOLD, 12));
         btnEliminar.setBackground(new Color(255, 100, 100));
         btnEliminar.setForeground(Color.WHITE);
+        btnEliminar.setEnabled(modoEdicion);
         
         buttonPanel.add(btnGuardar);
         buttonPanel.add(btnLimpiar);
         buttonPanel.add(btnEliminar);
         
+        // El panel de botones ocupa dos columnas y tiene peso vertical
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.NORTH;
-        
         panelEdicion.add(buttonPanel, gbc);
         
         add(panelEdicion, BorderLayout.EAST);
     }
+
+    /**
+     * Método auxiliar para agregar componentes con restricciones específicas
+     */
+    private void agregarComponente(JPanel panel, Component comp, int gridx, int gridy, int fill, double weightx) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = gridx;
+        gbc.gridy = gridy;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.fill = fill;
+        gbc.weightx = weightx;
+        gbc.weighty = 0.0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        panel.add(comp, gbc);
+    }
+
     
     private void iniciarPanelInferior() {
         JPanel bottom = new JPanel(new BorderLayout(10, 0));
@@ -252,6 +249,7 @@ public class Usuarios extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 limpiarFormulario();
                 modoEdicion = false;
+                campoEditar();
             }
         });
         
@@ -259,6 +257,9 @@ public class Usuarios extends JPanel {
         btnRefrescar.setFont(new Font("Century Gothic", Font.BOLD, 12));
         btnRefrescar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+            	modoEdicion = false;
+            	limpiarFormulario();
+            	campoEditar();
                 cargarUsuarios();
             }
         });
@@ -273,7 +274,7 @@ public class Usuarios extends JPanel {
     }
     
     private void limpiarFormulario() {
-        txtId.setText("");
+        txtEditando.setText("");
         txtUsuario.setText("");
         txtContrasena.setText("");
         txtNombre.setText("");
@@ -286,8 +287,10 @@ public class Usuarios extends JPanel {
     private void mostrarDetallesUsuario() {
         int filaSeleccionada = tblUsuarios.getSelectedRow();
         if (filaSeleccionada >= 0) {
+        	modoEdicion = true;
+        	campoEditar();
             idUsuarioSeleccionado = Integer.parseInt(tblUsuarios.getValueAt(filaSeleccionada, 0).toString());
-            txtId.setText(tblUsuarios.getValueAt(filaSeleccionada, 0).toString());
+            txtEditando.setText(tblUsuarios.getValueAt(filaSeleccionada, 1).toString());
             txtUsuario.setText(tblUsuarios.getValueAt(filaSeleccionada, 1).toString());
             txtContrasena.setText(""); // No mostrar la contraseña por seguridad
             txtNombre.setText(tblUsuarios.getValueAt(filaSeleccionada, 2).toString());
@@ -296,6 +299,20 @@ public class Usuarios extends JPanel {
             modoEdicion = true;
         }
     }
+    
+    private void campoEditar() {
+		if (modoEdicion) {
+			btnGuardar.setText("Actualizar");
+			btnEliminar.setEnabled(true);
+			txtEditando.setVisible(modoEdicion);
+			lblEditando.setVisible(modoEdicion);
+		} else {
+			txtEditando.setVisible(modoEdicion);
+			lblEditando.setVisible(modoEdicion);
+			btnGuardar.setText("Guardar");
+			btnEliminar.setEnabled(false);
+		}
+	}
     
     private void cargarUsuarios() {
         DefaultTableModel modelo = (DefaultTableModel) tblUsuarios.getModel();
