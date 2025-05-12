@@ -41,6 +41,55 @@ public class UsuariosDAO {
 	}
 	
 	/**
+	 * Obtiene los usuarios de la base de datos con filtro de búsqueda
+	 */
+	public List<Sesion> obtenerBusqueda(String busqueda, String filtro, int idUsuarioActual) {
+	    List<Sesion> lista = new ArrayList<>();
+	    String sql = "SELECT id, usuario, password, nombre, rol FROM sesiones WHERE id <> " + idUsuarioActual;
+	    
+	    // Agregar cláusula WHERE adicional si la cadena de búsqueda no está vacía
+	    if (busqueda != null && !busqueda.isEmpty()) {
+	        String terminoBusqueda = "%" + busqueda + "%";
+	        
+	        sql += " AND ";
+	        
+	        if (filtro.equals("Todos")) {
+	            sql += "(id LIKE '" + terminoBusqueda + 
+	                   "' OR usuario LIKE '" + terminoBusqueda + 
+	                   "' OR nombre LIKE '" + terminoBusqueda + 
+	                   "' OR rol LIKE '" + terminoBusqueda + "')";
+	        } else if (filtro.equals("Usuario")) {
+	            sql += "usuario LIKE '" + terminoBusqueda + "'";
+	        } else if (filtro.equals("Nombre")) {
+	            sql += "nombre LIKE '" + terminoBusqueda + "'";
+	        } else if (filtro.equals("Rol")) {
+	            sql += "rol LIKE '" + terminoBusqueda + "'";
+	        }
+	    }
+	    
+	    try {
+	        ResultSet rs = db.obtenerSentencia(sql);
+	        while (rs.next()) {
+	            Sesion s = new Sesion(
+	                rs.getInt("id"),
+	                rs.getString("usuario"),
+	                rs.getString("password"),
+	                rs.getString("nombre"),
+	                rs.getString("rol")
+	            );
+	            lista.add(s);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        db.cerrarConexion();
+	    }
+	    
+	    return lista;
+	}
+
+	
+	/**
 	 * Método para autenticar un usuario en la base de datos.
 	 */
 	public boolean Autenticar(Sesion u)

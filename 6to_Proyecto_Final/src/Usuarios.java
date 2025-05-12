@@ -81,7 +81,7 @@ public class Usuarios extends JPanel {
         comboGbc.gridy = 1;
         comboGbc.weighty = 1.0;
         comboGbc.insets = new Insets(0, 5, 0, 5);
-        cmbFiltro = new JComboBox<>(new String[] { "Todos", "ID", "Usuario", "Nombre", "Rol" });
+        cmbFiltro = new JComboBox<>(new String[] { "Todos", "Usuario", "Nombre", "Rol" });
         cmbFiltro.setFont(new Font("Century Gothic", Font.BOLD, 12));
         cmbFiltro.setPreferredSize(new Dimension(120, 30));
         busquedaPanel.add(cmbFiltro, comboGbc);
@@ -104,6 +104,29 @@ public class Usuarios extends JPanel {
         buttonGbc.gridy = 1;
         buttonGbc.insets = new Insets(0, 5, 0, 5);
         JButton searchButton = new JButton("Buscar");
+        searchButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		String busqueda = txtBusqueda.getText();
+				String filtro = (String) cmbFiltro.getSelectedItem();
+				
+				if (busqueda.isEmpty()) {
+					cargarUsuarios();
+				} else {
+					List<Sesion> usuarios = dao.obtenerBusqueda(busqueda, filtro, sesionActual.getIdUsuario());
+					DefaultTableModel modelo = (DefaultTableModel) tblUsuarios.getModel();
+					modelo.setRowCount(0); // Limpiar filas previas
+					
+					for (Sesion u : usuarios) {
+						modelo.addRow(new Object[]{
+							u.getIdUsuario(),
+							u.getUser(),
+							u.getNombre(),
+							u.getRol()
+						});
+					}
+				}
+        	}
+        });
         searchButton.setFont(new Font("Century Gothic", Font.BOLD, 12));
         searchButton.setPreferredSize(new Dimension(100, 30));
         busquedaPanel.add(searchButton, buttonGbc);
