@@ -3,6 +3,9 @@ public class Validator {
 
 	public static String validarUsuario(String usuario) {
 		
+		if (usuario.trim().isEmpty()) {
+			return "El usuario no puede estar vacío";
+		}
 		
 		if(!usuario.matches("^[A-ZÁÉÍÓÚÑa-záéíóúñ]+(\s[A-ZÁÉÍÓÚÑa-záéíóúñ]+)*$")) { 
 			
@@ -29,7 +32,7 @@ public class Validator {
 		//esto es para ver si la caja de texto está completamente vacía
 		if(password.trim().isEmpty()) {
 			
-			return "Contraseña incorrecta (contraseña vacía)"; //se retorna un mensaje de error
+			return "La contraseña no puede estar vacía"; //se retorna un mensaje de error
 		}
 		
 		//Determina el límite de longitud de la contra. Esto es opcional pero suele ser común en las contraseñas. 
@@ -58,7 +61,7 @@ public class Validator {
 		        nombre = nombre.trim();
 		        
 		        if(nombre.isEmpty()) {
-		        	return "El nombre está vacío";
+		        	return "El nombre no puede estar vacío";
 		        }
 
 		        if (nombre.length() < 5) {

@@ -8,8 +8,6 @@ public class Sesion {
 	private String nombre;
 	private String rol;
 	
-	private ConexionAccess db;
-	
 	/**
 	 * Método constructor paramatrizado
 	 */
@@ -20,8 +18,6 @@ public class Sesion {
         this.contrasena = contrasena;
         this.nombre = nombre;
         this.rol = rol;
-		
-		db = new ConexionAccess();
 	}
 	
 	/**
@@ -34,29 +30,6 @@ public class Sesion {
 		this.contrasena = "";
 		this.nombre = "";
 		this.rol = "";
-		
-		this.db = new ConexionAccess();
-	}
-	
-	public boolean Autenticar()
-	{
-	    String consulta = String.format("SELECT * FROM sesiones WHERE usuario='%s' AND password='%s'", usuario, contrasena);
-	    try {
-	        ResultSet rs = db.obtenerSentencia(consulta);
-	        if (rs.next()) {
-	            this.idUsuario = rs.getInt("id");
-	            this.nombre = rs.getString("nombre");
-	            this.usuario = rs.getString("usuario");
-	            this.contrasena = rs.getString("password");
-	            this.rol = rs.getString("rol");
-	            return true;
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    } finally {
-	        db.cerrarConexion();
-	    }
-	    return false;
 	}
 	
 	public void Desautenticar()
@@ -78,6 +51,10 @@ public class Sesion {
 
     public String getNombre() {
         return nombre;
+    }
+    
+    public String getContrasena() {
+        return contrasena;
     }
 
     public String getRol() {

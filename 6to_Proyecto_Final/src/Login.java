@@ -8,6 +8,7 @@ public class Login extends JFrame {
 	private Sesion Sesion;
     public Login() {
     	Sesion = new Sesion();
+    	UsuariosDAO dao = new UsuariosDAO();
     	
     	setResizable(false);
         setTitle("Login");
@@ -69,7 +70,7 @@ public class Login extends JFrame {
         		Sesion.setUser(userInput);
         		Sesion.setContra(contraInput);
         		
-        		if (Sesion.Autenticar()) {
+        		if (dao.Autenticar(Sesion)) {
         			JOptionPane.showMessageDialog(null, "Usuario y contraseña correctos", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         			Principal Principal = new Principal(Sesion, Login.this);
         			Principal.setVisible(true);
