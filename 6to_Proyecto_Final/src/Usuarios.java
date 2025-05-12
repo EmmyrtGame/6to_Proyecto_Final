@@ -28,6 +28,7 @@ public class Usuarios extends JPanel {
     private JButton btnLimpiar;
     private JButton btnEliminar;
     private JLabel lblEditando;
+    private JLabel lblRegistros;
     
     private JLabel lblErrorUsuario;
     private JLabel lblErrorContrasena;
@@ -47,8 +48,8 @@ public class Usuarios extends JPanel {
         iniciarPanelSuperior();
         iniciarTabla();
         iniciarPanelEdicion();
-        cargarUsuarios();
         iniciarPanelInferior();
+        cargarUsuarios();
     }
     
     private void iniciarPanelSuperior() {
@@ -282,6 +283,29 @@ public class Usuarios extends JPanel {
         
         btnEliminar = new JButton("Eliminar");
         btnEliminar.setFont(new Font("Century Gothic", Font.BOLD, 12));
+        btnEliminar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int filaSeleccionada = tblUsuarios.getSelectedRow();
+				if (filaSeleccionada >= 0) {
+					int idUsuario = Integer.parseInt(tblUsuarios.getValueAt(filaSeleccionada, 0).toString());
+					int confirmacion = JOptionPane.showConfirmDialog(null, "¿Está seguro de eliminar este usuario?", "Confirmación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if (confirmacion == JOptionPane.YES_OPTION) {
+						boolean correcto = dao.eliminarUsuario(idUsuario);
+						if (correcto) {
+							JOptionPane.showMessageDialog(null, "Usuario eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+							modoEdicion = false;
+							campoEditar();
+							cargarUsuarios();
+							limpiarFormulario();
+						} else {
+							JOptionPane.showMessageDialog(null, "Error al eliminar el usuario", "Error", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "Seleccione un usuario para eliminar", "Advertencia", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
         btnEliminar.setBackground(new Color(255, 100, 100));
         btnEliminar.setForeground(Color.WHITE);
         btnEliminar.setEnabled(modoEdicion);
@@ -372,7 +396,7 @@ public class Usuarios extends JPanel {
         JPanel bottom = new JPanel(new BorderLayout(10, 0));
         
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JLabel lblRegistros = new JLabel((tblUsuarios.getRowCount()) + " usuarios");
+        lblRegistros = new JLabel((tblUsuarios.getRowCount()) + " usuarios");
         leftPanel.add(lblRegistros);
         
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -381,24 +405,12 @@ public class Usuarios extends JPanel {
         btnNuevo.setFont(new Font("Century Gothic", Font.BOLD, 12));
         btnNuevo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+            	tblUsuarios.clearSelection();
                 limpiarFormulario();
                 modoEdicion = false;
                 campoEditar();
             }
         });
-        
-        JButton btnRefrescar = new JButton("Refrescar");
-        btnRefrescar.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        btnRefrescar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	modoEdicion = false;
-            	limpiarFormulario();
-            	campoEditar();
-                cargarUsuarios();
-            }
-        });
-        
-        rightPanel.add(btnRefrescar);
         rightPanel.add(btnNuevo);
         
         bottom.add(leftPanel, BorderLayout.WEST);
@@ -408,14 +420,16 @@ public class Usuarios extends JPanel {
     }
     
     private void limpiarFormulario() {
-        txtEditando.setText("");
+    	if (!modoEdicion) {
+    		txtEditando.setText("");
+    		tblUsuarios.clearSelection();
+    		modoEdicion = false;
+            idUsuarioSeleccionado = -1;
+    	}
         txtUsuario.setText("");
         txtContrasena.setText("");
         txtNombre.setText("");
         cmbRol.setSelectedIndex(0);
-        modoEdicion = false;
-        idUsuarioSeleccionado = -1;
-        tblUsuarios.clearSelection();
         
         lblErrorUsuario.setVisible(false);
         lblErrorContrasena.setVisible(false);
@@ -469,6 +483,8 @@ public class Usuarios extends JPanel {
                 u.getRol()
             });
         }
+        
+        lblRegistros.setText(tblUsuarios.getRowCount() + " usuarios");
     }
     
     public static void main(String[] args) {

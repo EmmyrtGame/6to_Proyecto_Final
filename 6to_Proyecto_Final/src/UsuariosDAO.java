@@ -85,4 +85,12 @@ public class UsuariosDAO {
 	    );
 	    return db.ejecutarSentencia(sql);
 	}
+	
+	/**
+	 * Método para eliminar un usuario de la base de datos.
+	 */
+	public boolean eliminarUsuario(int id) {
+	    String sql = String.format("DELETE FROM sesiones WHERE id=%d", id);
+	    return db.ejecutarSentencia(sql);
+	}
 }
