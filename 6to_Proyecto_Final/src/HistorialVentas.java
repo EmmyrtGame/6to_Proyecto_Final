@@ -51,64 +51,70 @@ public class HistorialVentas extends JPanel {
 
         // Panel de filtros con GridBagLayout
         JPanel filtrosPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
         
         // Selector de periodo
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.insets = new Insets(0, 5, 5, 5);
+        GridBagConstraints gbcPeriodoLabel = new GridBagConstraints();
+        gbcPeriodoLabel.gridx = 0;
+        gbcPeriodoLabel.gridy = 0;
+        gbcPeriodoLabel.anchor = GridBagConstraints.WEST;
+        gbcPeriodoLabel.insets = new Insets(0, 5, 5, 5);
         JLabel lblPeriodo = new JLabel("Periodo:");
         lblPeriodo.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        filtrosPanel.add(lblPeriodo, gbc);
+        filtrosPanel.add(lblPeriodo, gbcPeriodoLabel);
         
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.insets = new Insets(0, 5, 10, 5);
+        GridBagConstraints gbcPeriodoCombo = new GridBagConstraints();
+        gbcPeriodoCombo.gridx = 0;
+        gbcPeriodoCombo.gridy = 1;
+        gbcPeriodoCombo.insets = new Insets(0, 5, 10, 5);
         cmbPeriodo = new JComboBox<>(new String[] {
             "Personalizado", "Hoy", "Ayer", "Esta semana", "Semana pasada", 
             "Este mes", "Mes pasado", "Este año", "Año pasado"
         });
         cmbPeriodo.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         cmbPeriodo.setPreferredSize(new Dimension(150, 30));
-        filtrosPanel.add(cmbPeriodo, gbc);
+        filtrosPanel.add(cmbPeriodo, gbcPeriodoCombo);
         
         // Fecha de inicio
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(0, 15, 5, 5);
+        GridBagConstraints gbcFechaInicioLabel = new GridBagConstraints();
+        gbcFechaInicioLabel.gridx = 1;
+        gbcFechaInicioLabel.gridy = 0;
+        gbcFechaInicioLabel.insets = new Insets(0, 15, 5, 5);
         JLabel lblFechaInicio = new JLabel("Fecha inicio:");
         lblFechaInicio.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        filtrosPanel.add(lblFechaInicio, gbc);
+        filtrosPanel.add(lblFechaInicio, gbcFechaInicioLabel);
         
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.insets = new Insets(0, 15, 10, 5);
+        GridBagConstraints gbcFechaInicioText = new GridBagConstraints();
+        gbcFechaInicioText.gridx = 1;
+        gbcFechaInicioText.gridy = 1;
+        gbcFechaInicioText.insets = new Insets(0, 15, 10, 5);
         txtFechaInicio = new JTextField(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
         txtFechaInicio.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         txtFechaInicio.setPreferredSize(new Dimension(120, 30));
-        filtrosPanel.add(txtFechaInicio, gbc);
+        filtrosPanel.add(txtFechaInicio, gbcFechaInicioText);
         
         // Fecha de fin
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(0, 15, 5, 5);
+        GridBagConstraints gbcFechaFinLabel = new GridBagConstraints();
+        gbcFechaFinLabel.gridx = 2;
+        gbcFechaFinLabel.gridy = 0;
+        gbcFechaFinLabel.insets = new Insets(0, 15, 5, 5);
         JLabel lblFechaFin = new JLabel("Fecha fin:");
         lblFechaFin.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        filtrosPanel.add(lblFechaFin, gbc);
+        filtrosPanel.add(lblFechaFin, gbcFechaFinLabel);
         
-        gbc.gridx = 2;
-        gbc.gridy = 1;
-        gbc.insets = new Insets(0, 15, 10, 5);
+        GridBagConstraints gbcFechaFinText = new GridBagConstraints();
+        gbcFechaFinText.gridx = 2;
+        gbcFechaFinText.gridy = 1;
+        gbcFechaFinText.insets = new Insets(0, 15, 10, 5);
         txtFechaFin = new JTextField(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
         txtFechaFin.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         txtFechaFin.setPreferredSize(new Dimension(120, 30));
-        filtrosPanel.add(txtFechaFin, gbc);
+        filtrosPanel.add(txtFechaFin, gbcFechaFinText);
         
         // Botón de filtrado
-        gbc.gridx = 3;
-        gbc.gridy = 1;
-        gbc.insets = new Insets(0, 15, 10, 5);
+        GridBagConstraints gbcFiltrar = new GridBagConstraints();
+        gbcFiltrar.gridx = 3;
+        gbcFiltrar.gridy = 1;
+        gbcFiltrar.insets = new Insets(0, 15, 10, 5);
         JButton btnFiltrar = new JButton("Filtrar");
         btnFiltrar.setFont(new Font("Century Gothic", Font.BOLD, 12));
         btnFiltrar.setPreferredSize(new Dimension(100, 30));
@@ -120,12 +126,10 @@ public class HistorialVentas extends JPanel {
                     "Filtro aplicado",
                     JOptionPane.INFORMATION_MESSAGE
                 );
-                // Aquí iría la lógica de filtrado real
             }
         });
-        filtrosPanel.add(btnFiltrar, gbc);
+        filtrosPanel.add(btnFiltrar, gbcFiltrar);
         
-        // Añadir listener al combo para actualizar fechas según periodo seleccionado
         cmbPeriodo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 actualizarFechasSegunPeriodo();
@@ -135,6 +139,7 @@ public class HistorialVentas extends JPanel {
         top.add(filtrosPanel);
         add(top, BorderLayout.NORTH);
     }
+
     
     /**
      * Ajusta las fechas de inicio y fin según el periodo seleccionado
