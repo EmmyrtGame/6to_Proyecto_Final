@@ -253,21 +253,18 @@ public class CorteCaja extends JPanel {
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         for (Venta venta : ventas) {
-            // Filtrar solo las ventas del usuario actual
-            if (venta.getIdUsuario() == sesion.getIdUsuario()) {
-                String nombreCajero = ventasDAO.obtenerNombreCajero(venta.getIdUsuario());
-                model.addRow(new Object[]{
-                    venta.getId(),
-                    sdf.format(venta.getFecha()),
-                    venta.getIdUsuario(),
-                    nombreCajero,
-                    venta.getVentas(),
-                    venta.getTotal(),
-                    venta.getEstado()
-                });
-                totalPeriodo += venta.getTotal();
-                cantidadVentas += venta.getVentas();
-            }
+            String nombreCajero = ventasDAO.obtenerNombreCajero(venta.getIdUsuario());
+            model.addRow(new Object[]{
+                venta.getId(),
+                sdf.format(venta.getFecha()),
+                venta.getIdUsuario(),
+                nombreCajero,
+                venta.getVentas(),
+                venta.getTotal(),
+                venta.getEstado()
+            });
+            totalPeriodo += venta.getTotal();
+            cantidadVentas += venta.getVentas();
         }
 
         // Actualizar el resumen
@@ -291,11 +288,9 @@ public class CorteCaja extends JPanel {
             boolean exito = true;
 
             for (Venta venta : ventasPendientes) {
-                if (venta.getIdUsuario() == sesion.getIdUsuario()) {
-                    boolean actualizado = ventasDAO.actualizarEstado(venta.getId(), "Cerrado");
-                    if (!actualizado) {
-                        exito = false;
-                    }
+                boolean actualizado = ventasDAO.actualizarEstado(venta.getId(), "Cerrado");
+                if (!actualizado) {
+                    exito = false;
                 }
             }
 
