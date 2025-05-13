@@ -331,47 +331,9 @@ public class HistorialVentas extends JPanel {
         
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         
-        JButton btnExportar = new JButton("Exportar");
-        btnExportar.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        btnExportar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(
-                    HistorialVentas.this,
-                    "Exportación (pendiente)",
-                    "Exportar",
-                    JOptionPane.INFORMATION_MESSAGE
-                );
-            }
-        });
-        
-        JButton btnImprimir = new JButton("Imprimir");
-        btnImprimir.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        btnImprimir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(
-                    HistorialVentas.this,
-                    "Impresión (pendiente)",
-                    "Imprimir",
-                    JOptionPane.INFORMATION_MESSAGE
-                );
-            }
-        });
-        
-        JButton btnDetalles = new JButton("Ver Detalle");
-        btnDetalles.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        btnDetalles.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                mostrarDetallesVenta();
-            }
-        });
-        
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel lblRegistros = new JLabel(tblVentas.getRowCount() + " registros encontrados");
         leftPanel.add(lblRegistros);
-        
-        rightPanel.add(btnDetalles);
-        rightPanel.add(btnExportar);
-        rightPanel.add(btnImprimir);
         
         bottom.add(leftPanel, BorderLayout.WEST);
         bottom.add(rightPanel, BorderLayout.EAST);

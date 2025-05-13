@@ -24,7 +24,6 @@ public class CorteCaja extends JPanel {
 
     /**
      * Constructor de la clase CorteCaja
-     * @param sesion Sesión del usuario actual para filtrar ventas por ID de usuario
      */
     public CorteCaja(Sesion sesion) {
         this.sesion = sesion;
@@ -55,33 +54,42 @@ public class CorteCaja extends JPanel {
 
         // Panel de información del usuario o turno
         JPanel infoPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.insets = new Insets(0, 5, 5, 5);
+        
+        // Configuración para lblUsuario con su propio GridBagConstraints
+        GridBagConstraints gbcUsuario = new GridBagConstraints();
+        gbcUsuario.gridx = 0;
+        gbcUsuario.gridy = 0;
+        gbcUsuario.anchor = GridBagConstraints.WEST;
+        gbcUsuario.insets = new Insets(0, 5, 5, 5);
         JLabel lblUsuario = new JLabel("Usuario: " + sesion.getNombre());
         lblUsuario.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        infoPanel.add(lblUsuario, gbc);
+        infoPanel.add(lblUsuario, gbcUsuario);
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(0, 15, 5, 5);
+        // Configuración para lblRol con su propio GridBagConstraints
+        GridBagConstraints gbcRol = new GridBagConstraints();
+        gbcRol.gridx = 1;
+        gbcRol.gridy = 0;
+        gbcRol.anchor = GridBagConstraints.WEST;
+        gbcRol.insets = new Insets(0, 15, 5, 5);
         JLabel lblRol = new JLabel("Rol: " + sesion.getRol());
         lblRol.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        infoPanel.add(lblRol, gbc);
+        infoPanel.add(lblRol, gbcRol);
         
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(0, 15, 5, 5);
+        // Configuración para lblFiltroCaja con su propio GridBagConstraints
+        GridBagConstraints gbcFiltroCaja = new GridBagConstraints();
+        gbcFiltroCaja.gridx = 2;
+        gbcFiltroCaja.gridy = 0;
+        gbcFiltroCaja.anchor = GridBagConstraints.WEST;
+        gbcFiltroCaja.insets = new Insets(0, 15, 5, 5);
         String alcance = sesion.getRol().equals("Admin") ? "Todas las Cajas" : "Solo Mi Caja";
         lblFiltroCaja = new JLabel("Alcance: " + alcance);
         lblFiltroCaja.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        infoPanel.add(lblFiltroCaja, gbc);
+        infoPanel.add(lblFiltroCaja, gbcFiltroCaja);
 
         top.add(infoPanel);
         add(top, BorderLayout.NORTH);
     }
+
 
     /**
      * Inicializa la tabla para mostrar las ventas pendientes
