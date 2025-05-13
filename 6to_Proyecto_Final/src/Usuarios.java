@@ -17,11 +17,15 @@ public class Usuarios extends JPanel {
     private JTable tblUsuarios;
     private UsuariosDAO dao = new UsuariosDAO();
     private Sesion sesionActual;
+    private String originalUsuario = "";
+    private String originalContrasena = "";
+    private String originalNombre = "";
+    private String originalRol = "";
     
     // Componentes para el formulario de edición/creación
     private JTextField txtEditando;
     private JTextField txtUsuario;
-    private JTextField txtContrasena;
+    private JPasswordField txtContrasena;
     private JTextField txtNombre;
     private JComboBox<String> cmbRol;
     private JButton btnGuardar;
@@ -136,7 +140,7 @@ public class Usuarios extends JPanel {
     }
     
     private void iniciarTabla() {
-        String[] cols = {"ID", "Usuario", "Nombre", "Rol"};
+        String[] cols = {"ID", "Usuario", "Nombre", "Rol", "Contraseña"};
         DefaultTableModel model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -151,6 +155,8 @@ public class Usuarios extends JPanel {
         tblUsuarios.getColumnModel().getColumn(0).setMaxWidth(0);
         tblUsuarios.getColumnModel().getColumn(0).setWidth(0);
         tblUsuarios.getColumnModel().getColumn(0).setPreferredWidth(0);
+        tblUsuarios.getColumnModel().getColumn(4).setMinWidth(0);
+        tblUsuarios.getColumnModel().getColumn(4).setMaxWidth(0);
 
         // Listener para selección en la tabla
         tblUsuarios.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -207,11 +213,13 @@ public class Usuarios extends JPanel {
         // Campo Contraseña
         agregarComponente(panelEdicion, new JLabel("Contraseña:"), 0, 3, GridBagConstraints.NONE, 0.0);
         
-        txtContrasena = new JTextField();
+        txtContrasena = new JPasswordField();
+        txtContrasena.setEchoChar('*');
         txtContrasena.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                validarCampo(txtContrasena.getText(), lblErrorContrasena, "password");
+                validarCampo(txtContrasena.getPassword().toString(), lblErrorContrasena, "password");
+                System.out.println(txtContrasena.getPassword());
             }
         });
         agregarComponente(panelEdicion, txtContrasena, 1, 3, GridBagConstraints.HORIZONTAL, 1.0);
@@ -253,8 +261,13 @@ public class Usuarios extends JPanel {
         btnGuardar.setFont(new Font("Century Gothic", Font.BOLD, 12));
         btnGuardar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (!hayCambios()) {
+		            JOptionPane.showMessageDialog(null, "No se han realizado cambios para guardar", 
+		                "Aviso", JOptionPane.INFORMATION_MESSAGE);
+		            return;
+		        }
 				String usuario = txtUsuario.getText();
-				String contrasena = new String(txtContrasena.getText());
+				String contrasena = new String(txtContrasena.getPassword());
 				String nombre = txtNombre.getText();
 				String rol = (String) cmbRol.getSelectedItem();
 				
@@ -466,11 +479,14 @@ public class Usuarios extends JPanel {
         	campoEditar();
             idUsuarioSeleccionado = Integer.parseInt(tblUsuarios.getValueAt(filaSeleccionada, 0).toString());
             txtEditando.setText(tblUsuarios.getValueAt(filaSeleccionada, 1).toString());
-            txtUsuario.setText(tblUsuarios.getValueAt(filaSeleccionada, 1).toString());
-            txtContrasena.setText(""); // No mostrar la contraseña por seguridad
-            txtNombre.setText(tblUsuarios.getValueAt(filaSeleccionada, 2).toString());
-            String rol = tblUsuarios.getValueAt(filaSeleccionada, 3).toString();
-            cmbRol.setSelectedItem(rol);
+            originalUsuario = tblUsuarios.getValueAt(filaSeleccionada, 1).toString();
+            txtUsuario.setText(originalUsuario);
+            originalContrasena = tblUsuarios.getValueAt(filaSeleccionada, 4).toString();
+            txtContrasena.setText(originalContrasena);
+            originalNombre = tblUsuarios.getValueAt(filaSeleccionada, 2).toString();
+            txtNombre.setText(originalNombre);
+            originalRol = tblUsuarios.getValueAt(filaSeleccionada, 3).toString();
+            cmbRol.setSelectedItem(originalRol);
             modoEdicion = true;
             
             lblErrorUsuario.setVisible(false);
@@ -503,11 +519,30 @@ public class Usuarios extends JPanel {
                 u.getIdUsuario(),
                 u.getUser(),
                 u.getNombre(),
-                u.getRol()
+                u.getRol(),
+                u.getContrasena()
             });
         }
         
         lblRegistros.setText(tblUsuarios.getRowCount() + " usuarios");
+    }
+    
+    private boolean hayCambios() {
+        if (!modoEdicion) {
+            return !txtUsuario.getText().isEmpty() || 
+                   txtContrasena.getPassword().length > 0 || 
+                   !txtNombre.getText().isEmpty();
+        } else {
+            String usuarioActual = txtUsuario.getText();
+            String contrasenaActual = new String(txtContrasena.getPassword());
+            String nombreActual = txtNombre.getText();
+            String rolActual = (String) cmbRol.getSelectedItem();
+            
+            return !usuarioActual.equals(originalUsuario) || 
+                   !contrasenaActual.equals(originalContrasena) || 
+                   !nombreActual.equals(originalNombre) || 
+                   !rolActual.equals(originalRol);
+        }
     }
     
     public static void main(String[] args) {

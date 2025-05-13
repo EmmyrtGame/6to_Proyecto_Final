@@ -19,7 +19,7 @@ public class UsuariosDAO {
 	 */
 	public List<Sesion> obtenerTodos(int id) {
 		List<Sesion> lista = new ArrayList<>();
-		String sql = "SELECT id, usuario, password, nombre, rol FROM sesiones WHERE id != " + id;
+		String sql = "SELECT id, usuario, password, nombre, rol FROM sesiones";
 		try {
 			ResultSet rs = db.obtenerSentencia(sql);
 			while (rs.next()) {
@@ -45,7 +45,7 @@ public class UsuariosDAO {
 	 */
 	public List<Sesion> obtenerBusqueda(String busqueda, String filtro, int idUsuarioActual) {
 	    List<Sesion> lista = new ArrayList<>();
-	    String sql = "SELECT id, usuario, password, nombre, rol FROM sesiones WHERE id <> " + idUsuarioActual;
+	    String sql = "SELECT id, usuario, password, nombre, rol FROM sesiones";
 	    
 	    // Agregar cláusula WHERE adicional si la cadena de búsqueda no está vacía
 	    if (busqueda != null && !busqueda.isEmpty()) {
