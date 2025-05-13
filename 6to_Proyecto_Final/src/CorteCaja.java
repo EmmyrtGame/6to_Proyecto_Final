@@ -20,6 +20,7 @@ public class CorteCaja extends JPanel {
     private JButton btnCerrarCorte;
     private Sesion sesion; // Para obtener el ID del usuario actual
     private VentasDAO ventasDAO; // Para interactuar con la base de datos
+    private JLabel lblFiltroCaja;
 
     /**
      * Constructor de la clase CorteCaja
@@ -69,6 +70,14 @@ public class CorteCaja extends JPanel {
         JLabel lblRol = new JLabel("Rol: " + sesion.getRol());
         lblRol.setFont(new Font("Century Gothic", Font.BOLD, 12));
         infoPanel.add(lblRol, gbc);
+        
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0, 15, 5, 5);
+        String alcance = sesion.getRol().equals("Admin") ? "Todas las Cajas" : "Solo Mi Caja";
+        lblFiltroCaja = new JLabel("Alcance: " + alcance);
+        lblFiltroCaja.setFont(new Font("Century Gothic", Font.BOLD, 12));
+        infoPanel.add(lblFiltroCaja, gbc);
 
         top.add(infoPanel);
         add(top, BorderLayout.NORTH);
@@ -253,18 +262,21 @@ public class CorteCaja extends JPanel {
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         for (Venta venta : ventas) {
-            String nombreCajero = ventasDAO.obtenerNombreCajero(venta.getIdUsuario());
-            model.addRow(new Object[]{
-                venta.getId(),
-                sdf.format(venta.getFecha()),
-                venta.getIdUsuario(),
-                nombreCajero,
-                venta.getVentas(),
-                venta.getTotal(),
-                venta.getEstado()
-            });
-            totalPeriodo += venta.getTotal();
-            cantidadVentas += venta.getVentas();
+        	// Filtrar según el rol del usuario
+            if (sesion.getRol().equals("Admin") || venta.getIdUsuario() == sesion.getIdUsuario()) {
+                String nombreCajero = ventasDAO.obtenerNombreCajero(venta.getIdUsuario());
+                model.addRow(new Object[]{
+                    venta.getId(),
+                    sdf.format(venta.getFecha()),
+                    venta.getIdUsuario(),
+                    nombreCajero,
+                    venta.getVentas(),
+                    venta.getTotal(),
+                    venta.getEstado()
+                });
+                totalPeriodo += venta.getTotal();
+                cantidadVentas += venta.getVentas();
+            }
         }
 
         // Actualizar el resumen
@@ -273,27 +285,42 @@ public class CorteCaja extends JPanel {
     }
 
     /**
-     * Cierra el corte de caja actualizando el estado de las ventas pendientes a "Cerrado"
+     * Cierra únicamente el corte de caja seleccionado en la tabla
      */
     private void cerrarCorte() {
+        int filaSeleccionada = tblVentasPendientes.getSelectedRow();
+        
+        // Verificar si hay una fila seleccionada
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Debe seleccionar un corte de la tabla para cerrarlo.",
+                "Selección requerida",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        
+        // Obtener el ID de la venta seleccionada (columna 0)
+        int idVenta = (Integer) tblVentasPendientes.getValueAt(filaSeleccionada, 0);
+        String cajero = (String) tblVentasPendientes.getValueAt(filaSeleccionada, 3);
+        Double total = (Double) tblVentasPendientes.getValueAt(filaSeleccionada, 5);
+        
+        // Confirmar con el usuario
         int confirm = JOptionPane.showConfirmDialog(
             this,
-            "¿Está seguro de cerrar el corte de caja? Esta acción no se puede deshacer.",
+            "¿Está seguro de cerrar el corte seleccionado?\n" +
+            "Cajero: " + cajero + "\n" +
+            "Total: $" + String.format("%.2f", total) + "\n\n" +
+            "Esta acción no se puede deshacer.",
             "Confirmar Cierre",
             JOptionPane.YES_NO_OPTION
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
-            List<Venta> ventasPendientes = ventasDAO.obtenerPorEstado("Pendiente");
-            boolean exito = true;
-
-            for (Venta venta : ventasPendientes) {
-                boolean actualizado = ventasDAO.actualizarEstado(venta.getId(), "Cerrado");
-                if (!actualizado) {
-                    exito = false;
-                }
-            }
-
+            // Actualizar solo la venta seleccionada
+            boolean exito = ventasDAO.actualizarEstado(idVenta, "Cerrado");
+            
             if (exito) {
                 JOptionPane.showMessageDialog(
                     this,
@@ -305,7 +332,7 @@ public class CorteCaja extends JPanel {
             } else {
                 JOptionPane.showMessageDialog(
                     this,
-                    "Error al cerrar el corte de caja. Algunas ventas no se actualizaron.",
+                    "Error al cerrar el corte de caja.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE
                 );
