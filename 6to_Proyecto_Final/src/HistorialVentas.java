@@ -10,6 +10,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
+import java.util.List;
+import java.util.ArrayList;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class HistorialVentas extends JPanel {
     private JTable tblVentas;
@@ -31,7 +35,7 @@ public class HistorialVentas extends JPanel {
         iniciarPanelSuperior(); // Procedimiento que inicializa el panel superior (filtros)
         iniciarTabla(); // Procedimiento que inicializa la tabla de datos
         iniciarPanelResumen(); // Panel lateral con resumen de ventas
-        cargarDatosEjemplo(); // Cargar datos de ejemplo
+        cargarDatosReales(); // Cargar datos de ejemplo
         iniciarPanelInferior(); // Procedimiento que inicializa el panel inferior (botones)
     }
 
@@ -87,7 +91,16 @@ public class HistorialVentas extends JPanel {
         gbcFechaInicioText.gridx = 1;
         gbcFechaInicioText.gridy = 1;
         gbcFechaInicioText.insets = new Insets(0, 15, 10, 5);
-        txtFechaInicio = new JTextField(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        Calendar calInicio = Calendar.getInstance();
+        calInicio.add(Calendar.YEAR, -2); // Resta 2 años a la fecha actual
+        txtFechaInicio = new JTextField(sdf.format(calInicio.getTime()));
+        txtFechaInicio.addKeyListener(new KeyAdapter() {
+        	@Override
+        	public void keyPressed(KeyEvent e) {
+        		cmbPeriodo.setSelectedIndex(0); // Cambia a "Personalizado" al escribir
+        	}
+        });
         txtFechaInicio.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         txtFechaInicio.setPreferredSize(new Dimension(120, 30));
         filtrosPanel.add(txtFechaInicio, gbcFechaInicioText);
@@ -106,6 +119,12 @@ public class HistorialVentas extends JPanel {
         gbcFechaFinText.gridy = 1;
         gbcFechaFinText.insets = new Insets(0, 15, 10, 5);
         txtFechaFin = new JTextField(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+        txtFechaFin.addKeyListener(new KeyAdapter() {
+        	@Override
+        	public void keyPressed(KeyEvent e) {
+        		cmbPeriodo.setSelectedIndex(0); // Cambia a "Personalizado" al escribir
+        	}
+        });
         txtFechaFin.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         txtFechaFin.setPreferredSize(new Dimension(120, 30));
         filtrosPanel.add(txtFechaFin, gbcFechaFinText);
@@ -120,6 +139,7 @@ public class HistorialVentas extends JPanel {
         btnFiltrar.setPreferredSize(new Dimension(100, 30));
         btnFiltrar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+            	cargarDatosReales();
                 JOptionPane.showMessageDialog(
                     HistorialVentas.this,
                     "Filtro aplicado: de " + txtFechaInicio.getText() + " hasta " + txtFechaFin.getText(),
@@ -388,45 +408,60 @@ public class HistorialVentas extends JPanel {
     }
     
     /**
-     * Carga datos de ejemplo para la demostración
+     * Carga datos reales desde la base de datos para la tabla
      */
-    private void cargarDatosEjemplo() {
-        DefaultTableModel model = (DefaultTableModel) tblVentas.getModel();
+    private void cargarDatosReales() {
+    	DefaultTableModel model = (DefaultTableModel) tblVentas.getModel();
         model.setRowCount(0); // limpia filas previas
         
+        // Obtener fechas del filtro
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Calendar cal = Calendar.getInstance();
+        Date fechaInicio = null;
+        Date fechaFin = null;
+        
+        try {
+            fechaInicio = sdf.parse(txtFechaInicio.getText());
+            fechaFin = sdf.parse(txtFechaFin.getText());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error en formato de fechas. Usando valores predeterminados.",
+                "Error de formato", JOptionPane.ERROR_MESSAGE);
+            fechaInicio = new Date();
+            fechaFin = new Date();
+        }
+        
+        // Crear instancia del DAO y obtener las ventas
+        VentasDAO ventasDAO = new VentasDAO();
+        List<Venta> ventas = ventasDAO.obtenerPorRangoFechas(fechaInicio, fechaFin);
+        
         double totalPeriodo = 0.0;
         
-        // Generar datos de ejemplo para los últimos 30 días
-        for (int i = 0; i < 30; i++) {
-            cal.add(Calendar.DAY_OF_MONTH, -1);
-            String fechaStr = sdf.format(cal.getTime());
-            
-            // Datos aleatorios para cada día
-            int id = 1000 + i;
-            int idUsuario = 100 + (int)(Math.random() * 5);
-            String cajero = "Usuario " + idUsuario;
-            int cantidadVentas = (int)(Math.random() * 50) + 5;
-            double total = Math.random() * 5000 + 500;
-            totalPeriodo += total;
-            String estado = Math.random() > 0.2 ? "Cerrado" : "Pendiente";
+        // Llenar la tabla con datos reales
+        for (Venta venta : ventas) {
+            String nombreCajero = ventasDAO.obtenerNombreCajero(venta.getIdUsuario());
             
             model.addRow(new Object[]{
-                id,
-                fechaStr,
-                idUsuario,
-                cajero,
-                cantidadVentas,
-                total,
-                estado
+                venta.getId(),
+                sdf.format(venta.getFecha()),
+                venta.getIdUsuario(),
+                nombreCajero,
+                venta.getVentas(),
+                venta.getTotal(),
+                venta.getEstado()
             });
+            
+            totalPeriodo += venta.getTotal();
         }
+        
+        // Calcular días entre fechas para el promedio diario
+        long diff = fechaFin.getTime() - fechaInicio.getTime();
+        int diasPeriodo = (int) Math.max(1, diff / (24 * 60 * 60 * 1000)) + 1;
         
         // Actualizar el resumen
         lblTotalVentas.setText("Total de ventas: $" + String.format("%.2f", totalPeriodo));
-        lblPromedioDiario.setText("Promedio diario: $" + String.format("%.2f", totalPeriodo / 30));
+        lblPromedioDiario.setText("Promedio diario: $" + String.format("%.2f", totalPeriodo / diasPeriodo));
     }
+
     
     /**
      * Método main para pruebas
