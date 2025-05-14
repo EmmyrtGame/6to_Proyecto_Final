@@ -349,6 +349,10 @@ public class Usuarios extends JPanel {
 				int filaSeleccionada = tblUsuarios.getSelectedRow();
 				if (filaSeleccionada >= 0) {
 					int idUsuario = Integer.parseInt(tblUsuarios.getValueAt(filaSeleccionada, 0).toString());
+					if (idUsuario == sesionActual.getIdUsuario()) {
+						JOptionPane.showMessageDialog(null, "No puede eliminar su propia cuenta", "Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
 					int confirmacion = JOptionPane.showConfirmDialog(null, "¿Está seguro de eliminar este usuario?", "Confirmación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 					if (confirmacion == JOptionPane.YES_OPTION) {
 						boolean correcto = dao.eliminarUsuario(idUsuario);
