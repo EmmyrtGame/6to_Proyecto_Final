@@ -18,7 +18,7 @@ public class Principal extends JFrame {
     private String rol;
 
     public Principal(Sesion sesion, Login loginWindow) {
-        super("App con Barra Lateral y Vistas Internas");
+        super("Sistema de Abarrotes");
         this.sesion = sesion;
         this.loginWindow = loginWindow;
         this.rol = sesion.getRol();
@@ -41,6 +41,26 @@ public class Principal extends JFrame {
         sidebar.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         sidebar.setPreferredSize(new Dimension((int)(W * SIDEBAR_RATIO), 1));
         content.add(sidebar, BorderLayout.WEST);
+        
+        JPanel userInfoPanel = new JPanel();
+        userInfoPanel.setLayout(new BoxLayout(userInfoPanel, BoxLayout.Y_AXIS));
+        userInfoPanel.setBackground(new Color(255, 255, 255));
+        userInfoPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY),
+            BorderFactory.createEmptyBorder(5, 5, 10, 5)
+        ));
+        userInfoPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JLabel nombreUsuarioLabel = new JLabel(sesion.getUser());
+        nombreUsuarioLabel.setFont(new Font(nombreUsuarioLabel.getFont().getName(), Font.BOLD, 14));
+        nombreUsuarioLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Agregar al panel de información
+        userInfoPanel.add(nombreUsuarioLabel);
+
+        // Agregar el panel a la sidebar
+        sidebar.add(userInfoPanel);
+        sidebar.add(Box.createVerticalStrut(15)); // Espacio después del nombre
 
         // Contenedor de vistas tipo CardLayout
         viewLayout    = new CardLayout();
