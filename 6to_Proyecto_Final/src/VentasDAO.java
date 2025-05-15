@@ -20,7 +20,7 @@ public class VentasDAO {
      */
     public List<Venta> obtenerTodas() {
         List<Venta> lista = new ArrayList<>();
-        String sql = "SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas";
+        String sql = "SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas ORDER BY fecha DESC";
         try {
             ResultSet rs = db.obtenerSentencia(sql);
             while (rs.next()) {
@@ -48,13 +48,17 @@ public class VentasDAO {
     public List<Venta> obtenerPorRangoFechas(Date fechaInicio, Date fechaFin) {
         List<Venta> lista = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String sql = String.format(
-            "SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas " +
-            "WHERE fecha BETWEEN #%s# AND #%s#",
-            sdf.format(fechaInicio), sdf.format(fechaFin)
-        );
-        
+
         try {
+        	String sqlFechaInicio = sdf.format(fechaInicio);
+            String sqlFechaFin = sdf.format(fechaFin);
+            
+            String sql = String.format(
+                    "SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas " +
+                    "WHERE fecha BETWEEN #%s 00:00:00# AND #%s 23:59:59# ORDER BY fecha DESC",
+                    sqlFechaInicio, sqlFechaFin
+            );
+        	
             ResultSet rs = db.obtenerSentencia(sql);
             while (rs.next()) {
                 Venta v = new Venta(

@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -140,12 +141,6 @@ public class HistorialVentas extends JPanel {
         btnFiltrar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	cargarDatosReales();
-                JOptionPane.showMessageDialog(
-                    HistorialVentas.this,
-                    "Filtro aplicado: de " + txtFechaInicio.getText() + " hasta " + txtFechaFin.getText(),
-                    "Filtro aplicado",
-                    JOptionPane.INFORMATION_MESSAGE
-                );
             }
         });
         filtrosPanel.add(btnFiltrar, gbcFiltrar);
@@ -386,10 +381,17 @@ public class HistorialVentas extends JPanel {
             fechaFin = sdf.parse(txtFechaFin.getText());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, 
-                "Error en formato de fechas. Usando valores predeterminados.",
+                "Error en formato de fechas. Ejemplo: 25/04/2025",
                 "Error de formato", JOptionPane.ERROR_MESSAGE);
-            fechaInicio = new Date();
-            fechaFin = new Date();
+            try {
+				fechaInicio = sdf.parse("01/01/2023");
+				fechaFin = sdf.parse("01/01/2025");
+				txtFechaInicio.setText("01/01/2023");
+				txtFechaFin.setText("01/01/2025");
+			} catch (ParseException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
         }
         
         // Crear instancia del DAO y obtener las ventas
