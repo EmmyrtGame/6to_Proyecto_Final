@@ -15,6 +15,7 @@ public class Ventas extends JPanel {
     private ProductosDAO dao = new ProductosDAO();
     private JLabel lblTotal;
     private JLabel lblTotalIVA;
+    private JLabel lblTotalReal;
     private List<Productos> carrito = new ArrayList<>();
     private JButton btnQuitarCarrito;
     private JButton btnAgregarCarrito;
@@ -237,20 +238,26 @@ public class Ventas extends JPanel {
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
         
-        lblTotal = new JLabel("Total: $0.00");
+        lblTotal = new JLabel("Total sin IVA: $0.00");
         lblTotal.setFont(new Font("Arial", Font.BOLD, 14));
-        lblTotalIVA = new JLabel("Total + IVA (16%): $0.00");
+        
+        lblTotalIVA = new JLabel("IVA (16%): $0.00");
         lblTotalIVA.setFont(new Font("Arial", Font.BOLD, 14));
+        
+        lblTotalReal = new JLabel("Total con IVA: $0.00");
+        lblTotalReal.setFont(new Font("Arial", Font.BOLD, 14));
         
         JButton btnComprar = new JButton("Realizar Compra");
         btnComprar.addActionListener(this::procesarCompra);
 
         lblTotal.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblTotalIVA.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblTotalReal.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnComprar.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         bottomPanel.add(lblTotal);
         bottomPanel.add(lblTotalIVA);
+        bottomPanel.add(lblTotalReal);
         bottomPanel.add(Box.createVerticalStrut(5));
         bottomPanel.add(btnComprar);
 
@@ -460,7 +467,7 @@ public class Ventas extends JPanel {
 
     private void actualizarCarrito() {
         modelCarrito.setRowCount(0);
-        double total = carrito.stream()
+        double totalConIva = carrito.stream()
             .mapToDouble(p -> {
                 double subtotal = p.getPrecio() * p.getCantidad();
                 modelCarrito.addRow(new Object[]{
@@ -473,9 +480,12 @@ public class Ventas extends JPanel {
                 return subtotal;
             }).sum();
         
-        double iva = total * 0.16;
-        lblTotal.setText(String.format("Total: $%.2f", total));
-        lblTotalIVA.setText(String.format("Total + IVA (16%%): $%.2f", total + iva));
+        // Calcular el IVA como parte del precio total (16/116 del total)
+        double iva = (totalConIva * 16) / 116;
+        double totalSinIva = totalConIva - iva;
+        lblTotal.setText(String.format("Total sin IVA: $%.2f", totalSinIva));
+        lblTotalIVA.setText(String.format("IVA (16%%): $%.2f", iva));
+        lblTotalReal.setText(String.format("Total con IVA: $%.2f", totalConIva));
     }
 
     private void procesarCompra(ActionEvent e) {
@@ -488,19 +498,19 @@ public class Ventas extends JPanel {
         Venta ultimaVenta = ventasDAO.obtenerUltimaVentaUsuario(sesion.getIdUsuario());
         
         boolean necesitaNuevaVenta = true;
-        if(ultimaVenta != null && ultimaVenta.getEstado().equals("Pendiente")){
+        if (ultimaVenta != null && ultimaVenta.getEstado().equals("Pendiente")) {
             necesitaNuevaVenta = false;
         }
 
         try {
-            double total = calcularTotal();
-            double iva = total * 0.16;
-            double totalConIva = total + iva;
+            double totalConIva = calcularTotal();
+            double iva = (totalConIva * 16) / 116;
+            double totalSinIva = totalConIva - iva;
             
-         // Mostrar diálogo de confirmación con el total y el IVA
+            // Mostrar diálogo de confirmación con el total y el IVA desglosado
             int confirmacion = JOptionPane.showConfirmDialog(
                 this,
-                String.format("Total de la venta: $%.2f\nIVA (16%%): $%.2f\nTotal con IVA: $%.2f\n¿Desea confirmar la venta?", total, iva, totalConIva),
+                String.format("Total sin IVA: $%.2f\nIVA (16%%): $%.2f\nTotal con IVA: $%.2f\n¿Desea confirmar la venta?", totalSinIva, iva, totalConIva),
                 "Confirmar Venta",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
@@ -512,19 +522,19 @@ public class Ventas extends JPanel {
                 return;
             }
             
-            if(necesitaNuevaVenta){
+            if (necesitaNuevaVenta) {
                 ventasDAO.insertar(
                     sesion.getIdUsuario(),
                     carrito.size(),
                     new Date(),
-                    total + iva,
+                    totalConIva, // Registrar el total con IVA, que es el precio original de los productos
                     "Pendiente"
                 );
             } else {
                 ventasDAO.actualizarVenta(
                     ultimaVenta.getId(),
                     ultimaVenta.getVentas() + carrito.size(),
-                    ultimaVenta.getTotal() + total + iva
+                    ultimaVenta.getTotal() + totalConIva // Sumar el total con IVA al registro existente
                 );
             }
             
