@@ -265,7 +265,7 @@ public class VentasDAO {
      * Inserta una nueva venta en la base de datos.
      */
     public boolean insertar(int idUsuario, int ventas, Date fecha, double total, String estado) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String sql = String.format(
             "INSERT INTO ventas (id_usuario, ventas, fecha, total, estado) " +
             "VALUES (%d, %d, #%s#, %f, '%s')",
