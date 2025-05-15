@@ -205,25 +205,9 @@ public class CorteCaja extends JPanel {
             }
         });
 
-        JButton btnActualizar = new JButton("Actualizar");
-        btnActualizar.setFont(new Font("Century Gothic", Font.BOLD, 12));
-        btnActualizar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                cargarVentasPendientes();
-                JOptionPane.showMessageDialog(
-                    CorteCaja.this,
-                    "Lista de ventas pendientes actualizada.",
-                    "Actualización",
-                    JOptionPane.INFORMATION_MESSAGE
-                );
-            }
-        });
-
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel lblRegistros = new JLabel(tblVentasPendientes.getRowCount() + " registros pendientes");
         leftPanel.add(lblRegistros);
-
-        rightPanel.add(btnActualizar);
         rightPanel.add(btnCerrarCorte);
 
         bottom.add(leftPanel, BorderLayout.WEST);

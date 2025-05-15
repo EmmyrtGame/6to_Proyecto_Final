@@ -94,21 +94,25 @@ public class Principal extends JFrame {
         JToggleButton btn = new JToggleButton(key);
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        btn.setBorder(BorderFactory.createCompoundBorder(                             
-            BorderFactory.createLineBorder(Color.GRAY, 1),                             
-            BorderFactory.createEmptyBorder(5,10,5,10)                                  
-        ));
+        btn.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.GRAY, 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        
         btnMap.put(key, btn);
         btnGroup.add(btn);
         sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(btn);
-
+        
         btn.addActionListener(e -> {
-            if (!viewMap.containsKey(key)) {
-                JPanel panel = panelSupplier.get();
-                viewContainer.add(panel, key);
-                viewMap.put(key, panel);
+            // Si ya existe un panel con esta clave, eliminarlo
+            if (viewMap.containsKey(key)) {
+                viewContainer.remove(viewMap.get(key));
             }
+            // Siempre crear un panel nuevo
+            JPanel panel = panelSupplier.get();
+            viewContainer.add(panel, key);
+            viewMap.put(key, panel);
+
             viewLayout.show(viewContainer, key);
             viewContainer.revalidate();
             viewContainer.repaint();
