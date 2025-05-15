@@ -71,7 +71,7 @@ public class Principal extends JFrame {
         // Botones en la sidebar
         addSidebarButton("Dashboard", Dashboard::new);
         addSidebarButton("Inventario", Inventario::new);
-        addSidebarButton("Ventas", Ventas::new);
+        addSidebarButton("Ventas", () -> new Ventas(sesion));
         addSidebarButton("Corte", () -> new CorteCaja(sesion));
         if (this.rol.equals("Admin")) {
         	addSidebarButton("Histórico", HistorialVentas::new);

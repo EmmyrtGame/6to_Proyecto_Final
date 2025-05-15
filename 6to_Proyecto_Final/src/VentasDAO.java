@@ -271,6 +271,44 @@ public class VentasDAO {
     }
     
     /**
+     * Método para obtener la ultima venta del usuario
+     */
+    public Venta obtenerUltimaVentaUsuario(int idUsuario) {
+        String sql = String.format(
+            "SELECT TOP 1 * FROM ventas WHERE id_usuario = %d ORDER BY id DESC", 
+            idUsuario
+        );
+        
+        try {
+            ResultSet rs = db.obtenerSentencia(sql);
+            if(rs.next()) {
+                return new Venta(
+                    rs.getInt("id"),
+                    rs.getInt("id_usuario"),
+                    rs.getInt("ventas"),
+                    rs.getDate("fecha"),
+                    rs.getDouble("total"),
+                    rs.getString("estado")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Método para actualizar la venta existente
+     */
+    public boolean actualizarVenta(int idVenta, int nuevasVentas, double nuevoTotal) {
+        String sql = String.format(
+            "UPDATE ventas SET ventas = %d, total = %f WHERE id = %d",
+            nuevasVentas, nuevoTotal, idVenta
+        );
+        return db.ejecutarSentencia(sql);
+    }
+    
+    /**
      * Actualiza el estado de una venta.
      */
     public boolean actualizarEstado(int idVenta, String nuevoEstado) {

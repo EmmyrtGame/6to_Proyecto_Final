@@ -1,5 +1,8 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,10 +65,16 @@ public class ProductosDAO {
                        "' OR proveedor LIKE '" + terminoBusqueda + 
                        "' OR categoria LIKE '" + terminoBusqueda + 
                        "' OR codigo LIKE '" + terminoBusqueda + "')";
+            } else if (filtro.equals("Categoría")) {
+                sql += "categoria LIKE '" + terminoBusqueda + "'";
+            } else if (filtro.equals("Proveedor")) {
+                sql += "proveedor LIKE '" + terminoBusqueda + "'";
             } else if (filtro.equals("Nombre")) {
                 sql += "nombre LIKE '" + terminoBusqueda + "'";
             } else if (filtro.equals("Descripción")) {
                 sql += "descripcion LIKE '" + terminoBusqueda + "'";
+            } else if (filtro.equals("Código")) {
+                sql += "codigo LIKE '" + terminoBusqueda + "'";
             } else if (filtro.equals("Precio")) {
                 try {
                     double precioBuscado = Double.parseDouble(busqueda);
@@ -73,10 +82,6 @@ public class ProductosDAO {
                 } catch (NumberFormatException e) {
                     sql += "precio LIKE '" + terminoBusqueda + "'";
                 }
-            } else if (filtro.equals("Proveedor")) {
-                sql += "proveedor LIKE '" + terminoBusqueda + "'";
-            } else if (filtro.equals("Categoría")) {
-                sql += "categoria LIKE '" + terminoBusqueda + "'";
             } else if (filtro.equals("Cantidad")) {
                 try {
                     int cantidadBuscada = Integer.parseInt(busqueda);
@@ -84,8 +89,6 @@ public class ProductosDAO {
                 } catch (NumberFormatException e) {
                     sql += "cantidad LIKE '" + terminoBusqueda + "'";
                 }
-            } else if (filtro.equals("Código")) {
-                sql += "codigo LIKE '" + terminoBusqueda + "'";
             }
         }
         
@@ -132,23 +135,71 @@ public class ProductosDAO {
      * Método para actualizar un producto de la base de datos.
      */
     public boolean actualizarProducto(int id, String nombre, String descripcion, double precio, 
-		            int cantidad, String proveedor, String categoria, 
-		            String codigo, String rutaImagen) {
-		String sql = String.format(
-		"UPDATE productos SET nombre='%s', descripcion='%s', precio=%f, proveedor='%s', " +
-		"categoria='%s', cantidad=%d, codigo='%s', imagen='%s' WHERE id=%d",
-		nombre, descripcion, precio, proveedor, categoria, cantidad, codigo, 
-		(rutaImagen != null ? rutaImagen : ""), id
-		);
-		return db.ejecutarSentencia(sql);
-	}
+                            int cantidad, String proveedor, String categoria, 
+                            String codigo, String rutaImagen) {
+        String sql = String.format(
+        "UPDATE productos SET nombre='%s', descripcion='%s', precio=%f, proveedor='%s', " +
+        "categoria='%s', cantidad=%d, codigo='%s', imagen='%s' WHERE id=%d",
+        nombre, descripcion, precio, proveedor, categoria, cantidad, codigo, 
+        (rutaImagen != null ? rutaImagen : ""), id
+        );
+        return db.ejecutarSentencia(sql);
+    }
 
-    
     /**
      * Elimina un producto por su ID
      */
     public boolean eliminar(int id) {
         String sql = "DELETE FROM productos WHERE id = " + id;
         return db.ejecutarSentencia(sql);
+    }
+    
+    /**
+     * Obtiene un producto por su código único
+     * @param codigo El código del producto a buscar
+     * @return El producto encontrado o null si no existe
+     */
+    public Productos obtenerPorCodigo(String codigo) {
+        String sql = "SELECT id, nombre, descripcion, precio, proveedor, categoria, cantidad, codigo, imagen FROM productos WHERE codigo = '" + codigo + "'";
+        try {
+            ResultSet rs = db.obtenerSentencia(sql);
+            if (rs.next()) {
+                return new Productos(
+                    rs.getInt("id"),
+                    rs.getString("nombre"),
+                    rs.getString("descripcion"),
+                    rs.getDouble("precio"),
+                    rs.getString("proveedor"),
+                    rs.getString("categoria"),
+                    rs.getInt("cantidad"),
+                    rs.getString("codigo"),
+                    rs.getString("imagen")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            db.cerrarConexion();
+        }
+        return null;
+    }
+
+    /**
+     * Actualiza un producto en la base de datos usando un objeto Productos
+     * @param producto El objeto Productos con la información actualizada
+     * @return true si la actualización fue exitosa, false en caso contrario
+     */
+    public boolean actualizarProducto(Productos producto) {
+        return actualizarProducto(
+            producto.getId(),
+            producto.getNombre(),
+            producto.getDescripcion(),
+            producto.getPrecio(),
+            producto.getCantidad(),
+            producto.getProveedor(),
+            producto.getCategoria(),
+            producto.getCodigo(),
+            producto.getRutaImagen()
+        );
     }
 }
