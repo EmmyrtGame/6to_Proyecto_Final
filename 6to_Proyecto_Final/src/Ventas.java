@@ -495,6 +495,22 @@ public class Ventas extends JPanel {
         try {
             double total = calcularTotal();
             double iva = total * 0.16;
+            double totalConIva = total + iva;
+            
+         // Mostrar diálogo de confirmación con el total y el IVA
+            int confirmacion = JOptionPane.showConfirmDialog(
+                this,
+                String.format("Total de la venta: $%.2f\nIVA (16%%): $%.2f\nTotal con IVA: $%.2f\n¿Desea confirmar la venta?", total, iva, totalConIva),
+                "Confirmar Venta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+
+            // Si el usuario selecciona "No", se cancela la operación
+            if (confirmacion == JOptionPane.NO_OPTION) {
+                JOptionPane.showMessageDialog(this, "Venta cancelada.");
+                return;
+            }
             
             if(necesitaNuevaVenta){
                 ventasDAO.insertar(
