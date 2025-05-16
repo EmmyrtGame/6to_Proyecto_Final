@@ -4,6 +4,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -223,6 +225,12 @@ public class Inventario extends JPanel {
         tblInventario = new JTable(model);
         tblInventario.setFont(new Font("Tahoma", Font.PLAIN, 12));
         tblInventario.setFillsViewportHeight(true);
+        
+        JTableHeader tableHeader = tblInventario.getTableHeader();
+        tableHeader.setBackground(new Color(120, 0, 0));
+        tableHeader.setForeground(Color.WHITE);
+        tableHeader.setOpaque(true);
+        
 
         // Añadir listener para detectar selección de fila
         tblInventario.getSelectionModel().addListSelectionListener(new ListSelectionListener() {

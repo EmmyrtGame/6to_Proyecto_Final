@@ -5,7 +5,10 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -115,7 +118,7 @@ public class CorteCaja extends JPanel {
         tblVentasPendientes.setFont(new Font("Tahoma", Font.PLAIN, 12));
         tblVentasPendientes.setFillsViewportHeight(true);
         tblVentasPendientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblVentasPendientes.setRowHeight(25);
+        tblVentasPendientes.setRowHeight(50);
 
         // Ocultar columnas de ID de venta y ID de usuario
         tblVentasPendientes.getColumnModel().getColumn(0).setMinWidth(0);
@@ -125,6 +128,14 @@ public class CorteCaja extends JPanel {
         tblVentasPendientes.getColumnModel().getColumn(2).setMinWidth(0);
         tblVentasPendientes.getColumnModel().getColumn(2).setMaxWidth(0);
         tblVentasPendientes.getColumnModel().getColumn(2).setWidth(0);
+        
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        // Aplicar a todas las columnas
+        for (int i = 0; i < tblVentasPendientes.getColumnCount(); i++) {
+            tblVentasPendientes.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
 
         // Listener para selección de fila
         tblVentasPendientes.getSelectionModel().addListSelectionListener(new ListSelectionListener() {

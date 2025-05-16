@@ -157,6 +157,8 @@ public class Usuarios extends JPanel {
         tblUsuarios.getColumnModel().getColumn(0).setPreferredWidth(0);
         tblUsuarios.getColumnModel().getColumn(4).setMinWidth(0);
         tblUsuarios.getColumnModel().getColumn(4).setMaxWidth(0);
+        
+        tblUsuarios.setRowHeight(50);
 
         // Listener para selección en la tabla
         tblUsuarios.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -180,7 +182,7 @@ public class Usuarios extends JPanel {
             TitledBorder.DEFAULT_POSITION, 
             new Font("Century Gothic", Font.BOLD, 14)
         ));
-        panelEdicion.setPreferredSize(new Dimension(300, 0));
+        panelEdicion.setPreferredSize(new Dimension(350, 0));
         panelEdicion.setLayout(new GridBagLayout());
         
         // Campo ID (solo lectura)

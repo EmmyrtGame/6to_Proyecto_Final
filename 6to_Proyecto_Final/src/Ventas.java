@@ -1,6 +1,8 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -136,6 +138,11 @@ public class Ventas extends JPanel {
         productosTable.setRowHeight(22);
         productosTable.setFont(new Font("Arial", Font.PLAIN, 13));
         productosTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        
+        JTableHeader tableHeader = productosTable.getTableHeader();
+        tableHeader.setBackground(new Color(120, 0, 0));
+        tableHeader.setForeground(Color.WHITE);
+        tableHeader.setOpaque(true);
 
         // Ajustar anchos de columnas
         productosTable.getColumnModel().getColumn(0).setPreferredWidth(80);  // Código
@@ -151,6 +158,11 @@ public class Ventas extends JPanel {
         carritoTable.setRowHeight(22);
         carritoTable.setFont(new Font("Arial", Font.PLAIN, 13));
         carritoTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        
+        JTableHeader tableHeader2 = carritoTable.getTableHeader();
+        tableHeader2.setBackground(new Color(200, 230, 200));
+        tableHeader2.setForeground(Color.BLACK);
+        tableHeader2.setOpaque(true);
 
         carritoTable.getSelectionModel().addListSelectionListener(e -> {
             boolean seleccionado = carritoTable.getSelectedRow() != -1;
