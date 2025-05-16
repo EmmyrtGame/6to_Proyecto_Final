@@ -92,18 +92,24 @@ public class UsuariosDAO {
 	/**
 	 * Método para autenticar un usuario en la base de datos.
 	 */
-	public boolean Autenticar(Sesion u)
-	{
-	    String consulta = String.format("SELECT * FROM sesiones WHERE usuario='%s' AND password='%s'", u.getUser(), u.getContrasena());
+	public boolean Autenticar(Sesion u) {
+	    // Trae el usuario que coincida con el nombre de usuario (sin importar mayúsculas/minúsculas)
+	    String consulta = String.format("SELECT * FROM sesiones WHERE usuario = '%s'", u.getUser());
 	    try {
 	        ResultSet rs = db.obtenerSentencia(consulta);
-	        if (rs.next()) {
-	            u.setId(rs.getInt("id"));
-	            u.setNombre(rs.getString("nombre"));
-	            u.setUser(rs.getString("usuario"));
-	            u.setContra(rs.getString("password"));
-	            u.setRol(rs.getString("rol"));
-	            return true;
+	        while (rs.next()) {
+	            // Obtenemos los datos reales de la base de datos
+	            String usuarioDB = rs.getString("usuario");
+	            String passwordDB = rs.getString("password");
+	            // Comparamos exactamente (case-sensitive) en Java
+	            if (usuarioDB.equals(u.getUser()) && passwordDB.equals(u.getContrasena())) {
+	                u.setId(rs.getInt("id"));
+	                u.setNombre(rs.getString("nombre"));
+	                u.setUser(usuarioDB);
+	                u.setContra(passwordDB);
+	                u.setRol(rs.getString("rol"));
+	                return true;
+	            }
 	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -112,6 +118,7 @@ public class UsuariosDAO {
 	    }
 	    return false;
 	}
+
 	
 	/**
 	 * Método para actualizar un usuario en la base de datos.

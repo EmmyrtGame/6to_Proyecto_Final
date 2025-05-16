@@ -4,13 +4,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class Login extends JFrame {
-	private JTextField txtContra;
-	private Sesion Sesion;
+    private JPasswordField txtContra; 
+    private Sesion Sesion;
+
     public Login() {
-    	Sesion = new Sesion();
-    	UsuariosDAO dao = new UsuariosDAO();
-    	
-    	setResizable(false);
+        Sesion = new Sesion();
+        UsuariosDAO dao = new UsuariosDAO();
+
+        setResizable(false);
         setTitle("Login");
         setSize(505, 376);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -53,8 +54,8 @@ public class Login extends JFrame {
         lblContra.setForeground(new Color(0, 0, 0));
         lblContra.setBounds(50, 157, 100, 25);
         card.add(lblContra);
-        
-        txtContra = new JTextField();
+
+        txtContra = new JPasswordField(); // Cambiado a JPasswordField
         txtContra.setFont(new Font("Century Gothic", Font.PLAIN, 12));
         txtContra.setBounds(150, 159, 200, 25);
         card.add(txtContra);
@@ -63,25 +64,24 @@ public class Login extends JFrame {
         JButton loginBtn = new JButton("Iniciar Sesión");
         loginBtn.setFont(new Font("Century Gothic", Font.BOLD, 12));
         loginBtn.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		String userInput = txtUser.getText();
-        		String contraInput = txtContra.getText();
-        		
-        		Sesion.setUser(userInput);
-        		Sesion.setContra(contraInput);
-        		
-        		if (dao.Autenticar(Sesion)) {
-        			JOptionPane.showMessageDialog(null, "Usuario y contraseña correctos", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        			Principal Principal = new Principal(Sesion, Login.this);
-        			Principal.setVisible(true);
-        			txtUser.setText("");
-        			txtContra.setText("");
-        			setVisible(false);
-        		}
-        		else {
-        			JOptionPane.showMessageDialog(null, "Usuario y contraseña incorrectos", "Credenciales incorrectas", JOptionPane.ERROR_MESSAGE);
-        		}
-        	}
+            public void actionPerformed(ActionEvent e) {
+                String userInput = txtUser.getText();
+                String contraInput = new String(txtContra.getPassword()); // Obtiene la contraseña correctamente
+
+                Sesion.setUser(userInput);
+                Sesion.setContra(contraInput);
+
+                if (dao.Autenticar(Sesion)) {
+                    JOptionPane.showMessageDialog(null, "Usuario y contraseña correctos", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    Principal Principal = new Principal(Sesion, Login.this);
+                    Principal.setVisible(true);
+                    txtUser.setText("");
+                    txtContra.setText("");
+                    setVisible(false);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Usuario y contraseña incorrectos", "Credenciales incorrectas", JOptionPane.ERROR_MESSAGE);
+                }
+            }
         });
         loginBtn.setBackground(new Color(128, 0, 0));
         loginBtn.setForeground(Color.WHITE);
