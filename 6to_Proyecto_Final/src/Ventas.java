@@ -305,27 +305,126 @@ public class Ventas extends JPanel {
             JOptionPane.showMessageDialog(this, "Seleccione un producto para agregar al carrito.");
             return;
         }
+        
         String codigo = (String) productosTable.getValueAt(fila, 0);
         Productos producto = dao.obtenerPorCodigo(codigo);
         
-        if (producto != null && producto.getCantidad() > 0) {
-            producto.setCantidad(producto.getCantidad() - 1);
-            boolean actualizado = dao.actualizarProducto(producto);
-            
-            if (actualizado) {
-                carrito.stream()
-                      .filter(p -> p.getCodigo().equals(codigo))
-                      .findFirst()
-                      .ifPresentOrElse(
-                          p -> p.setCantidad(p.getCantidad() + 1),
-                          () -> carrito.add(clonarProducto(producto, 1))
-                      );
-                actualizarInterfaz();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al actualizar el inventario.");
-            }
-        } else {
+        if (producto == null || producto.getCantidad() <= 0) {
             JOptionPane.showMessageDialog(this, "Producto no disponible o sin stock.");
+            return;
+        }
+        
+        // Mostrar información del producto y pedir cantidad
+        String mensaje = String.format(
+            "Producto: %s\n" +
+            "Precio: $%.2f\n" +
+            "Disponible: %d unidades\n\n" +
+            "Ingrese la cantidad a agregar:",
+            producto.getNombre(),
+            producto.getPrecio(),
+            producto.getCantidad()
+        );
+        
+        boolean cantidadValida = false;
+        int cantidadSeleccionada = 0;
+        
+        while (!cantidadValida) {
+            String input = JOptionPane.showInputDialog(
+                this,
+                mensaje,
+                "Seleccionar Cantidad",
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            // Si el usuario cancela
+            if (input == null) {
+                return;
+            }
+            
+            // Validar que no esté vacío
+            if (input.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Por favor ingrese una cantidad válida.", 
+                    "Error de Validación", 
+                    JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
+            
+            try {
+                cantidadSeleccionada = Integer.parseInt(input.trim());
+                
+                // Validar que sea positivo
+                if (cantidadSeleccionada <= 0) {
+                    JOptionPane.showMessageDialog(this, 
+                        "La cantidad debe ser mayor a 0.", 
+                        "Error de Validación", 
+                        JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+                
+                // Validar que no exceda el stock disponible
+                if (cantidadSeleccionada > producto.getCantidad()) {
+                    JOptionPane.showMessageDialog(this, 
+                        String.format("La cantidad no puede ser mayor a %d unidades disponibles.", 
+                                    producto.getCantidad()), 
+                        "Error de Validación", 
+                        JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+                
+                cantidadValida = true;
+                
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, 
+                    "Por favor ingrese solo números enteros.", 
+                    "Error de Formato", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        
+        // Procesar la adición al carrito
+        procesarAgregarAlCarrito(producto, cantidadSeleccionada);
+    }
+    
+    private void procesarAgregarAlCarrito(Productos producto, int cantidadSeleccionada) {
+        // Actualizar inventario
+        producto.setCantidad(producto.getCantidad() - cantidadSeleccionada);
+        boolean actualizado = dao.actualizarProducto(producto);
+        
+        if (actualizado) {
+            // Buscar si el producto ya existe en el carrito
+            boolean productoEncontrado = false;
+            
+            for (Productos p : carrito) {
+                if (p.getCodigo().equals(producto.getCodigo())) {
+                    p.setCantidad(p.getCantidad() + cantidadSeleccionada);
+                    productoEncontrado = true;
+                    break;
+                }
+            }
+            
+            // Si no existe en el carrito, agregarlo
+            if (!productoEncontrado) {
+                carrito.add(clonarProducto(producto, cantidadSeleccionada));
+            }
+            
+            // Actualizar interfaz
+            actualizarInterfaz();
+            
+            // Mostrar confirmación
+            JOptionPane.showMessageDialog(this, 
+                String.format("Se agregaron %d unidades de '%s' al carrito.", 
+                            cantidadSeleccionada, producto.getNombre()),
+                "Producto Agregado",
+                JOptionPane.INFORMATION_MESSAGE);
+            
+        } else {
+            // Si falló la actualización, restaurar cantidad original
+            producto.setCantidad(producto.getCantidad() + cantidadSeleccionada);
+            JOptionPane.showMessageDialog(this, 
+                "Error al actualizar el inventario.", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 
