@@ -224,7 +224,7 @@ public class HistorialVentas extends JPanel {
      * Procedimiento que inicializa el componente de la tabla
      */
     private void iniciarTabla() {
-        String[] cols = {"ID", "Fecha", "ID Usuario", "Cajero", "Cantidad Ventas", "Total", "Estado"};
+        String[] cols = {"ID", "Fecha", "ID Usuario", "Cajero", "Cantidad Ventas", "Total (físico)", "Estado"};
         DefaultTableModel model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -411,7 +411,7 @@ public class HistorialVentas extends JPanel {
                 nombreCajero,
                 venta.getVentas(),
                 venta.getTotal(),
-                venta.getEstado()
+                venta.getEstado(),
             });
             
             totalPeriodo += venta.getTotal();

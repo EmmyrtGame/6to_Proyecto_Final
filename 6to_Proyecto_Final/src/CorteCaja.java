@@ -304,30 +304,71 @@ public class CorteCaja extends JPanel {
             return;
         }
         
-        // Obtener el ID de la venta seleccionada (columna 0)
+        // Obtener datos de la venta seleccionada
         int idVenta = (Integer) tblVentasPendientes.getValueAt(filaSeleccionada, 0);
         String cajero = (String) tblVentasPendientes.getValueAt(filaSeleccionada, 3);
-        Double total = (Double) tblVentasPendientes.getValueAt(filaSeleccionada, 5);
+        Double totalSistema = (Double) tblVentasPendientes.getValueAt(filaSeleccionada, 5);
+        int cantidadVentas = (Integer) tblVentasPendientes.getValueAt(filaSeleccionada, 4);
         
-        // Confirmar con el usuario
-        int confirm = JOptionPane.showConfirmDialog(
+        // Mostrar diálogo para confirmar el total físico
+        double totalFisico = mostrarDialogoConteoFisico(cajero, totalSistema, cantidadVentas);
+        
+        if (totalFisico >= 0) { // -1 indica cancelación
+            // Confirmar cierre con los datos validados
+            confirmarCierreCorte(idVenta, cajero, totalSistema, totalFisico);
+        }
+    }
+    
+    /**
+     * Método para confirmar el cierre del corte de caja
+     */
+    private void confirmarCierreCorte(int idVenta, String cajero, double totalSistema, double totalFisico) {
+        // Determinar el tipo de cierre
+        String tipoCierre = (Math.abs(totalSistema - totalFisico) <= 0.01) ? "EXACTO" : "CON DIFERENCIA";
+        double diferencia = totalFisico - totalSistema;
+        
+        // Mensaje de confirmación final
+        StringBuilder mensajeFinal = new StringBuilder();
+        mensajeFinal.append("RESUMEN DEL CIERRE:\n\n");
+        mensajeFinal.append("Cajero: ").append(cajero).append("\n");
+        mensajeFinal.append("Total Sistema: $").append(String.format("%.2f", totalSistema)).append("\n");
+        mensajeFinal.append("Total Físico: $").append(String.format("%.2f", totalFisico)).append("\n");
+        
+        if (diferencia != 0) {
+            mensajeFinal.append("Diferencia: $").append(String.format("%.2f", diferencia));
+            mensajeFinal.append(diferencia > 0 ? " (SOBRANTE)" : " (FALTANTE)").append("\n");
+        }
+        
+        mensajeFinal.append("¿Confirma el cierre del corte?");
+        
+        int confirmacionFinal = JOptionPane.showConfirmDialog(
             this,
-            "¿Está seguro de cerrar el corte seleccionado?\n" +
-            "Cajero: " + cajero + "\n" +
-            "Total: $" + String.format("%.2f", total) + "\n\n" +
-            "Esta acción no se puede deshacer.",
-            "Confirmar Cierre",
-            JOptionPane.YES_NO_OPTION
+            mensajeFinal.toString(),
+            "Confirmar Cierre de Corte",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
         );
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            // Actualizar solo la venta seleccionada
-            boolean exito = ventasDAO.actualizarEstado(idVenta, "Cerrado");
+        
+        if (confirmacionFinal == JOptionPane.YES_OPTION) {
+            // Actualizar la base de datos
+            boolean exito = false;
+            
+            if (Math.abs(diferencia) <= 0.01) {
+                // Solo cambiar estado si no hay diferencia
+                exito = ventasDAO.actualizarEstado(idVenta, "Cerrado");
+            } else {
+                // Actualizar tanto el total como el estado si hay diferencia
+                exito = ventasDAO.actualizarVentaCorte(idVenta, totalFisico, "Cerrado", diferencia);
+            }
             
             if (exito) {
+                String mensajeExito = tipoCierre.equals("EXACTO") 
+                    ? "Corte de caja cerrado exitosamente.\nTotales coinciden perfectamente."
+                    : String.format("Corte de caja cerrado con diferencia registrada.\nDiferencia: $%.2f", diferencia);
+                    
                 JOptionPane.showMessageDialog(
                     this,
-                    "Corte de caja cerrado con éxito.",
+                    mensajeExito,
                     "Corte Cerrado",
                     JOptionPane.INFORMATION_MESSAGE
                 );
@@ -341,6 +382,103 @@ public class CorteCaja extends JPanel {
                 );
             }
         }
+    }
+    
+    /**
+     * Método para mostrar un diálogo de conteo físico
+     */
+    private double mostrarDialogoConteoFisico(String cajero, double totalSistema, int cantidadVentas) {
+        String mensaje = String.format(
+            "CONFIRMACIÓN DE CORTE DE CAJA\n\n" +
+            "Cajero: %s\n" +
+            "Cantidad de ventas: %d\n" +
+            "Total registrado en sistema: $%.2f\n\n" +
+            "Ingrese el total contado físicamente:",
+            cajero,
+            cantidadVentas,
+            totalSistema
+        );
+        
+        boolean montoValido = false;
+        double totalFisico = -1;
+        
+        while (!montoValido) {
+            String input = JOptionPane.showInputDialog(
+                this,
+                mensaje,
+                "Confirmar Conteo Físico",
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            // Si el usuario cancela
+            if (input == null) {
+                return -1; // Indica cancelación
+            }
+            
+            // Validar que no esté vacío
+            if (input.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Por favor ingrese el monto contado físicamente.", 
+                    "Error de Validación", 
+                    JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
+            
+            try {
+                totalFisico = Double.parseDouble(input.trim());
+                
+                // Validar que sea positivo
+                if (totalFisico < 0) {
+                    JOptionPane.showMessageDialog(this, 
+                        "El monto debe ser mayor o igual a 0.", 
+                        "Error de Validación", 
+                        JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+                
+                // Verificar si hay diferencia significativa
+                double diferencia = Math.abs(totalSistema - totalFisico);
+                double porcentajeDiferencia = (diferencia / totalSistema) * 100;
+                
+                if (diferencia > 0.01) { // Diferencia mayor a 1 centavo
+                    String mensajeDiferencia = String.format(
+                        "DIFERENCIA DETECTADA:\n\n" +
+                        "Sistema: $%.2f\n" +
+                        "Físico: $%.2f\n" +
+                        "Diferencia: $%.2f (%.1f%%)\n\n" +
+                        "¿Confirma el monto físico de $%.2f?",
+                        totalSistema,
+                        totalFisico,
+                        diferencia,
+                        porcentajeDiferencia,
+                        totalFisico
+                    );
+                    
+                    int confirmacion = JOptionPane.showConfirmDialog(
+                        this,
+                        mensajeDiferencia,
+                        "Confirmar Diferencia",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                    );
+                    
+                    if (confirmacion != JOptionPane.YES_OPTION) {
+                        continue; // Volver a pedir el monto
+                    }
+                }
+                
+                montoValido = true;
+                
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, 
+                    "Por favor ingrese un número válido (use punto para decimales).\n" +
+                    "Ejemplo: 123.45", 
+                    "Error de Formato", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        
+        return totalFisico;
     }
 
     /**

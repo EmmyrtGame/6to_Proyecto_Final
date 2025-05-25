@@ -150,7 +150,7 @@ public class Principal extends JFrame {
 
     public static void main(String[] args) {
     	SwingUtilities.invokeLater(() -> {
-            Sesion sesionPrueba = new Sesion(1, "EMMYDIOS", "123456", "LUIS EMMYRT AVILA AGUILAR", "Admin");
+            Sesion sesionPrueba = new Sesion(1, "Emmyrt", "123456", "LUIS EMMYRT AVILA AGUILAR", "Admin");
             new Principal(sesionPrueba, null);
         });
     }

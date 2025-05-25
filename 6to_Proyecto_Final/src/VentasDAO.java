@@ -20,7 +20,7 @@ public class VentasDAO {
      */
     public List<Venta> obtenerTodas() {
         List<Venta> lista = new ArrayList<>();
-        String sql = "SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas ORDER BY fecha DESC";
+        String sql = "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas ORDER BY fecha DESC";
         try {
             ResultSet rs = db.obtenerSentencia(sql);
             while (rs.next()) {
@@ -30,7 +30,8 @@ public class VentasDAO {
                     rs.getInt("ventas"),
                     rs.getDate("fecha"),
                     rs.getDouble("total"),
-                    rs.getString("estado")
+                    rs.getString("estado"),
+                    rs.getDouble("diferencia")
                 );
                 lista.add(v);
             }
@@ -54,7 +55,7 @@ public class VentasDAO {
             String sqlFechaFin = sdf.format(fechaFin);
             
             String sql = String.format(
-                    "SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas " +
+                    "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
                     "WHERE fecha BETWEEN #%s 00:00:00# AND #%s 23:59:59# ORDER BY fecha DESC",
                     sqlFechaInicio, sqlFechaFin
             );
@@ -67,7 +68,8 @@ public class VentasDAO {
                     rs.getInt("ventas"),
                     rs.getDate("fecha"),
                     rs.getDouble("total"),
-                    rs.getString("estado")
+                    rs.getString("estado"),
+                    rs.getDouble("diferencia")
                 );
                 lista.add(v);
             }
@@ -85,7 +87,7 @@ public class VentasDAO {
     public List<Venta> obtenerPorEstado(String estado) {
         List<Venta> lista = new ArrayList<>();
         String sql = String.format(
-            "SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas " +
+            "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
             "WHERE estado = '%s'", estado
         );
         
@@ -98,7 +100,8 @@ public class VentasDAO {
                     rs.getInt("ventas"),
                     rs.getDate("fecha"),
                     rs.getDouble("total"),
-                    rs.getString("estado")
+                    rs.getString("estado"),
+                    rs.getDouble("diferencia")
                 );
                 lista.add(v);
             }
@@ -116,7 +119,7 @@ public class VentasDAO {
     public List<Venta> obtenerPorUsuario(int idUsuario) {
         List<Venta> lista = new ArrayList<>();
         String sql = String.format(
-            "SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas " +
+            "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
             "WHERE id_usuario = %d", idUsuario
         );
         
@@ -129,7 +132,8 @@ public class VentasDAO {
                     rs.getInt("ventas"),
                     rs.getDate("fecha"),
                     rs.getDouble("total"),
-                    rs.getString("estado")
+                    rs.getString("estado"),
+                    rs.getDouble("diferencia")
                 );
                 lista.add(v);
             }
@@ -146,7 +150,7 @@ public class VentasDAO {
      */
     public Venta obtenerPorId(int idVenta) {
         String sql = String.format(
-            "SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas " +
+            "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
             "WHERE id = %d", idVenta
         );
         
@@ -159,7 +163,8 @@ public class VentasDAO {
                     rs.getInt("ventas"),
                     rs.getDate("fecha"),
                     rs.getDouble("total"),
-                    rs.getString("estado")
+                    rs.getString("estado"),
+                    rs.getDouble("diferencia")
                 );
             }
         } catch (SQLException e) {
@@ -177,7 +182,7 @@ public class VentasDAO {
         List<Venta> lista = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         
-        StringBuilder sql = new StringBuilder("SELECT id, id_usuario, ventas, fecha, total, estado FROM ventas WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas WHERE 1=1");
         
         if (fechaInicio != null && fechaFin != null) {
             sql.append(String.format(" AND fecha BETWEEN #%s# AND #%s#", 
@@ -201,7 +206,8 @@ public class VentasDAO {
                     rs.getInt("ventas"),
                     rs.getDate("fecha"),
                     rs.getDouble("total"),
-                    rs.getString("estado")
+                    rs.getString("estado"),
+                    rs.getDouble("diferencia")
                 );
                 lista.add(v);
             }
@@ -292,7 +298,8 @@ public class VentasDAO {
                     rs.getInt("ventas"),
                     rs.getDate("fecha"),
                     rs.getDouble("total"),
-                    rs.getString("estado")
+                    rs.getString("estado"),
+                    rs.getDouble("diferencia")
                 );
             }
         } catch (SQLException e) {
@@ -308,6 +315,17 @@ public class VentasDAO {
         String sql = String.format(
             "UPDATE ventas SET ventas = %d, total = %f WHERE id = %d",
             nuevasVentas, nuevoTotal, idVenta
+        );
+        return db.ejecutarSentencia(sql);
+    }
+    
+    /**
+     * Método específico para actualizar venta en proceso de corte de caja
+     */
+    public boolean actualizarVentaCorte(int idVenta, double nuevoTotal, String nuevoEstado, double diferencia) {
+        String sql = String.format(
+            "UPDATE ventas SET total = %.2f, estado = '%s' WHERE id = %d",
+            nuevoTotal, nuevoEstado, idVenta, diferencia
         );
         return db.ejecutarSentencia(sql);
     }

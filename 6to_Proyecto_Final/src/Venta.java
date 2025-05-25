@@ -12,18 +12,20 @@ public class Venta {
     private int ventas;
     private Date fecha;
     private double total;
+    private double diferencia;
     private String estado;
     
     /**
      * Constructor paramatrizado con todos los parámetros para definir una venta
      */
-    public Venta(int id, int id_usuario, int ventas, Date fecha, double total, String estado) {
+    public Venta(int id, int id_usuario, int ventas, Date fecha, double total, String estado, double diferencia) {
         this.id = id;
         this.id_usuario = id_usuario;
         this.ventas = ventas;
         this.fecha = fecha;
         this.total = total;
         this.estado = estado;
+        this.diferencia = diferencia;
     }
     
     /**
@@ -36,6 +38,7 @@ public class Venta {
         this.fecha = null;
         this.total = 0.0;
         this.estado = "";
+        this.diferencia = 0.0;
     }
     
     public int getId() { return id; }
@@ -44,6 +47,7 @@ public class Venta {
     public Date getFecha() { return fecha; }
     public double getTotal() { return total; }
     public String getEstado() { return estado; }
+    public double getDiferencia() { return diferencia; }
     
     public void setId(int id) {
         this.id = id;
@@ -63,6 +67,10 @@ public class Venta {
     
     public void setTotal(double total) {
 		this.total = total;
+	}
+    
+    public void setDiferencia(double diferencia) {
+    	this.diferencia = diferencia;
 	}
     
     public void setEstado(String estado) {
