@@ -88,7 +88,7 @@ public class Ventas extends JPanel {
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.weightx = 0;
-        filterCombo = new JComboBox<>(new String[] { "Todos", "Categoría", "Proveedor" });
+        filterCombo = new JComboBox<>(new String[] { "Todos", "Nombre", "Código" });
         filterCombo.setPreferredSize(new Dimension(120, 30));
         searchPanel.add(filterCombo, gbc);
 
@@ -390,6 +390,7 @@ public class Ventas extends JPanel {
                 }
             }
             carrito.clear();
+            productosTable.clearSelection();
             actualizarInterfaz();
             JOptionPane.showMessageDialog(this, "Carrito limpiado exitosamente.");
         }
@@ -529,7 +530,7 @@ public class Ventas extends JPanel {
             );
 
             // Si el usuario selecciona "No", se cancela la operación
-            if (confirmacion == JOptionPane.NO_OPTION) {
+            if (confirmacion == JOptionPane.NO_OPTION || confirmacion == JOptionPane.CLOSED_OPTION) {
                 JOptionPane.showMessageDialog(this, "Venta cancelada.");
                 return;
             }
@@ -551,6 +552,7 @@ public class Ventas extends JPanel {
             }
             
             carrito.clear();
+            productosTable.clearSelection();
             actualizarInterfaz();
             JOptionPane.showMessageDialog(this, "Venta registrada exitosamente!");
         } catch (Exception ex) {
