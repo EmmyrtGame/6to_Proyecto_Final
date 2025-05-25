@@ -156,8 +156,6 @@ public class ProductosDAO {
     
     /**
      * Obtiene un producto por su código único
-     * @param codigo El código del producto a buscar
-     * @return El producto encontrado o null si no existe
      */
     public Productos obtenerPorCodigo(String codigo) {
         String sql = "SELECT id, nombre, descripcion, precio, proveedor, categoria, cantidad, codigo, imagen FROM productos WHERE codigo = '" + codigo + "'";
@@ -186,8 +184,6 @@ public class ProductosDAO {
 
     /**
      * Actualiza un producto en la base de datos usando un objeto Productos
-     * @param producto El objeto Productos con la información actualizada
-     * @return true si la actualización fue exitosa, false en caso contrario
      */
     public boolean actualizarProducto(Productos producto) {
         return actualizarProducto(

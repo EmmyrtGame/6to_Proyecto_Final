@@ -73,31 +73,41 @@ public class Ventas extends JPanel {
         top.add(titlePanel);
 
         JPanel searchPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
         
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(0, 5, 0, 5);
+        // GridBagConstraints para searchField
+        GridBagConstraints gbcSearchField = new GridBagConstraints();
+        gbcSearchField.gridx = 0;
+        gbcSearchField.gridy = 1;
+        gbcSearchField.weightx = 1.0;
+        gbcSearchField.fill = GridBagConstraints.BOTH;
+        gbcSearchField.insets = new Insets(0, 5, 0, 5);
         searchField = new JTextField();
         searchField.setPreferredSize(new Dimension(300, 30));
         searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        searchPanel.add(searchField, gbc);
+        searchPanel.add(searchField, gbcSearchField);
 
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.weightx = 0;
+        // GridBagConstraints para filterCombo
+        GridBagConstraints gbcFilterCombo = new GridBagConstraints();
+        gbcFilterCombo.gridx = 1;
+        gbcFilterCombo.gridy = 1;
+        gbcFilterCombo.weightx = 0;
+        gbcFilterCombo.fill = GridBagConstraints.BOTH;
+        gbcFilterCombo.insets = new Insets(0, 5, 0, 5);
         filterCombo = new JComboBox<>(new String[] { "Todos", "Nombre", "Código" });
         filterCombo.setPreferredSize(new Dimension(120, 30));
-        searchPanel.add(filterCombo, gbc);
+        searchPanel.add(filterCombo, gbcFilterCombo);
 
-        gbc.gridx = 2;
-        gbc.gridy = 1;
+        // GridBagConstraints para searchButton
+        GridBagConstraints gbcSearchButton = new GridBagConstraints();
+        gbcSearchButton.gridx = 2;
+        gbcSearchButton.gridy = 1;
+        gbcSearchButton.weightx = 0;
+        gbcSearchButton.fill = GridBagConstraints.BOTH;
+        gbcSearchButton.insets = new Insets(0, 5, 0, 5);
         JButton searchButton = new JButton("Buscar");
         searchButton.setPreferredSize(new Dimension(100, 30));
         searchButton.addActionListener(e -> buscarProductos());
-        searchPanel.add(searchButton, gbc);
+        searchPanel.add(searchButton, gbcSearchButton);
 
         top.add(searchPanel);
         return top;
