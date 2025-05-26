@@ -267,6 +267,7 @@ public class Usuarios extends JPanel {
 		                "Aviso", JOptionPane.INFORMATION_MESSAGE);
 		            return;
 		        }
+		        
 		        String usuario = txtUsuario.getText();
 		        String contrasena = new String(txtContrasena.getPassword());
 		        String nombre = txtNombre.getText();
@@ -287,53 +288,53 @@ public class Usuarios extends JPanel {
 		        if (!valido) {
 		            return;
 		        }
-
-		        Sesion sesion = new Sesion(-1, usuario, contrasena, nombre, rol);				
+		        
+		        Sesion sesion = new Sesion(-1, usuario, contrasena, nombre, rol);
 		        
 		        boolean correcto = false;
-		        if (modoEdicion) {
-		            int IdUsuarioSeleccionado = Integer.parseInt(tblUsuarios.getValueAt(tblUsuarios.getSelectedRow(), 0).toString());
-		            sesion.setId(IdUsuarioSeleccionado);
-		            
-		            // Verificar si el usuario editado es el de la sesión activa
-		            if (IdUsuarioSeleccionado == sesionActual.getIdUsuario()) {
-		                int confirmacion = JOptionPane.showConfirmDialog(null, 
-		                    "Está editando su propia sesión. Debe cerrar sesión para efectuar los cambios. ¿Desea cerrar sesión ahora?", 
-		                    "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-		                if (confirmacion == JOptionPane.YES_OPTION) {
-		                    correcto = dao.actualizarUsuario(sesion);
-		                    if (correcto) {
-		                        JOptionPane.showMessageDialog(null, "Usuario actualizado correctamente. La sesión se cerrará.", 
-		                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
-		                        // Cerrar la ventana actual y abrir la ventana de login
-		                        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(Usuarios.this);
-		                        frame.dispose();
-		                        new Login().setVisible(true);
+		        try {
+		            if (modoEdicion) {
+		                int IdUsuarioSeleccionado = Integer.parseInt(tblUsuarios.getValueAt(tblUsuarios.getSelectedRow(), 0).toString());
+		                sesion.setId(IdUsuarioSeleccionado);
+		                
+		                // Verificar si el usuario editado es el de la sesión activa
+		                if (IdUsuarioSeleccionado == sesionActual.getIdUsuario()) {
+		                    int confirmacion = JOptionPane.showConfirmDialog(null, 
+		                        "Está editando su propia sesión. Debe cerrar sesión para efectuar los cambios. ¿Desea cerrar sesión ahora?", 
+		                        "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		                    if (confirmacion == JOptionPane.YES_OPTION) {
+		                        correcto = dao.actualizarUsuario(sesion);
+		                        if (correcto) {
+		                            JOptionPane.showMessageDialog(null, "Usuario actualizado correctamente. La sesión se cerrará.", 
+		                                "Éxito", JOptionPane.INFORMATION_MESSAGE);
+		                            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(Usuarios.this);
+		                            frame.dispose();
+		                            new Login().setVisible(true);
+		                        }
 		                    } else {
-		                        JOptionPane.showMessageDialog(null, "Error al actualizar el usuario", 
-		                            "Error", JOptionPane.ERROR_MESSAGE);
+		                        JOptionPane.showMessageDialog(null, "Los cambios no se han guardado.", 
+		                            "Aviso", JOptionPane.INFORMATION_MESSAGE);
+		                        return;
 		                    }
-		                    return;
 		                } else {
-		                    JOptionPane.showMessageDialog(null, "Los cambios no se han guardado.", 
-		                        "Aviso", JOptionPane.INFORMATION_MESSAGE);
-		                    return;
+		                    correcto = dao.actualizarUsuario(sesion);
 		                }
 		            } else {
-		                correcto = dao.actualizarUsuario(sesion);
+		                correcto = dao.insertarUsuario(sesion);
 		            }
-		        } else {
-		            correcto = dao.insertarUsuario(sesion);
+		            
+		            if (correcto) {
+		                JOptionPane.showMessageDialog(null, "Usuario guardado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+		                cargarUsuarios();
+		                limpiarFormulario();
+		            }
+		        } catch (IllegalArgumentException ex) {
+		            // Mostrar mensaje de error específico para duplicados
+		            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error de Validación", JOptionPane.WARNING_MESSAGE);
+		        } catch (Exception ex) {
+		            JOptionPane.showMessageDialog(null, "Error al guardar el usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		        }
-		        
-		        if (correcto) {
-		            JOptionPane.showMessageDialog(null, "Usuario guardado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-		            cargarUsuarios();
-		            limpiarFormulario();
-		        } else {
-		            JOptionPane.showMessageDialog(null, "Error al guardar el usuario", "Error", JOptionPane.ERROR_MESSAGE);
-		        }
-			}
+		    }
 		});
         
         btnLimpiar = new JButton("Limpiar");

@@ -24,6 +24,27 @@ public class ConexionAccess {
         Class.forName(DRIVER);
         conn = DriverManager.getConnection(url);
     }
+    
+    public Connection abrirConexionDirecta() throws SQLException {
+        try {
+            abrirConexion();
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Error al cargar el driver de Access", e);
+        }
+        return conn;
+    }
+    
+    public Connection obtenerConexion() throws SQLException {
+    	try {
+    		if (conn == null || conn.isClosed()) {
+    			abrirConexion();
+    		}
+    	}catch(ClassNotFoundException e) {
+    		e.printStackTrace();
+    		throw new SQLException("No se pudo cargar el driver", e);
+    	}
+    	return conn;
+    }
 
     public void cerrarConexion() {
         if (conn != null) {
