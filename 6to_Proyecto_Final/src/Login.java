@@ -67,6 +67,24 @@ public class Login extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String userInput = txtUser.getText();
                 String contraInput = new String(txtContra.getPassword()); // Obtiene la contraseña correctamente
+                
+                // VALIDACIÓN DE USUARIO
+                String validacionUsuario = Validator.validarUsuario(userInput);
+                if (!validacionUsuario.equals("correcto")) {
+                    JOptionPane.showMessageDialog(Login.this, validacionUsuario, "Error de Formato", JOptionPane.ERROR_MESSAGE);
+                    return; // Detener ejecución si hay error
+                }
+                
+                // VALIDACIÓN DE CONTRASEÑA
+                String validacionPassword = Validator.validarPassword(contraInput);
+                if (!validacionPassword.equals("correcto")) {
+                    JOptionPane.showMessageDialog(Login.this, validacionPassword, "Error de Formato", JOptionPane.ERROR_MESSAGE);
+                    return; // Detener ejecución si hay error
+                }
+
+                // Si las validaciones son exitosas, proceder con autenticación
+                Sesion.setUser(userInput);
+                Sesion.setContra(contraInput);
 
                 Sesion.setUser(userInput);
                 Sesion.setContra(contraInput);
