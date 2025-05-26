@@ -181,6 +181,43 @@ public class ProductosDAO {
         }
         return null;
     }
+    
+    /**
+     * Verifica si existe un código en la base de datos (para ModalAgregar)
+     */
+    public boolean existeCodigo(String codigo) {
+        String consulta = "SELECT COUNT(*) FROM productos WHERE codigo = '" + codigo + "'";
+        try {
+            ResultSet rs = db.obtenerSentencia(consulta);
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            db.cerrarConexion();
+        }
+        return false;
+    }
+
+    /**
+     * Verifica si existe un código en otro producto (para ModalEditar)
+     */
+    public boolean existeCodigoEnOtroProducto(String codigo, int idProductoActual) {
+        String consulta = "SELECT COUNT(*) FROM productos WHERE codigo = '" + codigo + 
+                         "' AND id <> " + idProductoActual;
+        try {
+            ResultSet rs = db.obtenerSentencia(consulta);
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            db.cerrarConexion();
+        }
+        return false;
+    }
 
     /**
      * Actualiza un producto en la base de datos usando un objeto Productos

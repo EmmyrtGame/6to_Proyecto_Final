@@ -110,7 +110,7 @@ public class ModalEditar extends JDialog {
         JLabel lblErrorNombre = new JLabel("New label");
         lblErrorNombre.setForeground(new Color(128, 0, 0));
         lblErrorNombre.setFont(new Font("Century Gothic", Font.BOLD, 11));
-        lblErrorNombre.setBounds(152, 53, 185, 14);
+        lblErrorNombre.setBounds(152, 53, 441, 14);
         pnlDatos.add(lblErrorNombre);
         
         JLabel lblErrorDescripcion = new JLabel("New label");
@@ -457,6 +457,13 @@ public class ModalEditar extends JDialog {
                 break;
             case "codigo":
                 resultado = Validator.validarCodigo(campo);
+                // Validar código duplicado (excluyendo el producto actual)
+                if (resultado.equals("correcto")) {
+                    String codigoLimpio = campo.replaceAll("_", "");
+                    if (producto.existeCodigoEnOtroProducto(codigoLimpio, this.productoId)) {
+                        resultado = "Este código ya existe en otro producto";
+                    }
+                }
                 break;
         }
         
