@@ -69,7 +69,6 @@ public class Principal extends JFrame {
         content.add(viewContainer, BorderLayout.CENTER);
 
         // Botones en la sidebar
-        addSidebarButton("Dashboard", Dashboard::new);
         addSidebarButton("Inventario", Inventario::new);
         addSidebarButton("Ventas", () -> new Ventas(sesion));
         addSidebarButton("Corte", () -> new CorteCaja(sesion));
@@ -80,7 +79,7 @@ public class Principal extends JFrame {
         addLogoutButton();
 
         // Mostrar Dashboard por defecto
-        JToggleButton dashBtn = btnMap.get("Dashboard");
+        JToggleButton dashBtn = btnMap.get("Inventario");
         dashBtn.setSelected(true);
         dashBtn.doClick();
 
