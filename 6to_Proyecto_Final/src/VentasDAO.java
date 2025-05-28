@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -52,12 +53,29 @@ public class VentasDAO {
     public List<Venta> obtenerPorRangoFechas(Date fechaInicio, Date fechaFin) {
         List<Venta> lista = new ArrayList<>();
         String sql = "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
-                     "WHERE fecha BETWEEN ? AND ? ORDER BY fecha DESC";
+                     "WHERE fecha >= ? AND fecha <= ? ORDER BY fecha DESC";
 
         try (Connection conn = db.obtenerConexion();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setDate(1, new java.sql.Date(fechaInicio.getTime()));
-            stmt.setDate(2, new java.sql.Date(fechaFin.getTime()));
+            
+            // Establecer la fecha de inicio al comienzo del día
+            Calendar calInicio = Calendar.getInstance();
+            calInicio.setTime(fechaInicio);
+            calInicio.set(Calendar.HOUR_OF_DAY, 0);
+            calInicio.set(Calendar.MINUTE, 0);
+            calInicio.set(Calendar.SECOND, 0);
+            calInicio.set(Calendar.MILLISECOND, 0);
+            
+            // Establecer la fecha de fin al final del día
+            Calendar calFin = Calendar.getInstance();
+            calFin.setTime(fechaFin);
+            calFin.set(Calendar.HOUR_OF_DAY, 23);
+            calFin.set(Calendar.MINUTE, 59);
+            calFin.set(Calendar.SECOND, 59);
+            calFin.set(Calendar.MILLISECOND, 999);
+            
+            stmt.setTimestamp(1, new java.sql.Timestamp(calInicio.getTimeInMillis()));
+            stmt.setTimestamp(2, new java.sql.Timestamp(calFin.getTimeInMillis()));
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
