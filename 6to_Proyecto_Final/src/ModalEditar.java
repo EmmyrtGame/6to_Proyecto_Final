@@ -15,9 +15,13 @@ import javax.swing.JFormattedTextField;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.List;
+
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
@@ -42,7 +46,7 @@ public class ModalEditar extends JDialog {
     private static final long serialVersionUID = 1L;
     private JTextField txtNombre;
     private JTextField txtPrecio;
-    private JTextField txtProveedor;
+    private JComboBox<Proveedor> cmbProveedor;
     private JTextField txtCategoria;
     private JTextField txtCantidad;
     private JTextField txtCodigo;
@@ -51,8 +55,10 @@ public class ModalEditar extends JDialog {
     private String selectedImagePath;
     private String savedImageName;
     private ProductosDAO producto = null;
+    private ProveedoresDAO proveedorDAO = null;
     private int productoId;
     private String currentImagePath;
+    private JLabel lblErrorProveedor;
 
     /**
      * Launch the application.
@@ -78,6 +84,7 @@ public class ModalEditar extends JDialog {
      */
     public ModalEditar(int id, String nombre, String descripcion, double precio, int cantidad, 
                        String proveedor, String categoria, String codigo, String imagenPath) {
+    	proveedorDAO = new ProveedoresDAO();
         producto = new ProductosDAO();
         this.productoId = id;
         this.currentImagePath = imagenPath;
@@ -119,7 +126,7 @@ public class ModalEditar extends JDialog {
         lblErrorDescripcion.setBounds(152, 164, 441, 14);
         pnlDatos.add(lblErrorDescripcion);
         
-        JLabel lblErrorProveedor = new JLabel("New label");
+        lblErrorProveedor = new JLabel("New label");
         lblErrorProveedor.setForeground(new Color(128, 0, 0));
         lblErrorProveedor.setFont(new Font("Century Gothic", Font.BOLD, 11));
         lblErrorProveedor.setBounds(152, 276, 332, 14);
@@ -240,18 +247,18 @@ public class ModalEditar extends JDialog {
         lblProveedor.setBounds(20, 263, 137, 14);
         pnlDatos.add(lblProveedor);
         
-        txtProveedor = new JTextField();
-        txtProveedor.addFocusListener(new FocusAdapter() {
+        cmbProveedor = new JComboBox<>();
+        cmbProveedor.setFont(new Font("Century Gothic", Font.PLAIN, 16));
+        cmbProveedor.setBounds(152, 260, 333, 20);
+        cmbProveedor.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                validarCampo(txtProveedor.getText(), lblErrorProveedor, "proveedor");
+                validarCampoProveedor();
             }
         });
-        txtProveedor.setFont(new Font("Century Gothic", Font.PLAIN, 16));
-        txtProveedor.setColumns(10);
-        txtProveedor.setBounds(152, 260, 333, 20);
-        txtProveedor.setText(proveedor);
-        pnlDatos.add(txtProveedor);
+        cargarProveedores();
+        seleccionarProveedorPorNombre(proveedor);
+        pnlDatos.add(cmbProveedor);
         
         txtCategoria = new JTextField();
         txtCategoria.addFocusListener(new FocusAdapter() {
@@ -369,18 +376,16 @@ public class ModalEditar extends JDialog {
                 String descInput = txtDescripcion.getText();
                 String precioInput = txtPrecio.getText();
                 String cantidadInput = txtCantidad.getText();
-                String proveedorInput = txtProveedor.getText();
                 String categoriaInput = txtCategoria.getText();
                 String codigoInput = txtCodigo.getText();
                 
-                boolean validaciones[] = new boolean[7];
+                boolean validaciones[] = new boolean[6];
                 validaciones[0] = validarCampo(nombreInput, lblErrorNombre, "nombre");
                 validaciones[1] = validarCampo(descInput, lblErrorDescripcion, "descripcion");
                 validaciones[2] = validarCampo(precioInput, lblErrorPrecio, "precio");
                 validaciones[3] = validarCampo(cantidadInput, lblErrorCantidad, "cantidad");
-                validaciones[4] = validarCampo(proveedorInput, lblErrorProveedor, "proveedor");
-                validaciones[5] = validarCampo(categoriaInput, lblErrorCategoria, "categoria");
-                validaciones[6] = validarCampo(codigoInput, lblErrorCodigo, "codigo");
+                validaciones[4] = validarCampo(categoriaInput, lblErrorCategoria, "categoria");
+                validaciones[5] = validarCampo(codigoInput, lblErrorCodigo, "codigo");
                 
                 boolean valido = true;
                 for (boolean validacion : validaciones) {
@@ -389,6 +394,13 @@ public class ModalEditar extends JDialog {
                     }
                 }
                 if (!valido) { return; }
+                
+                Proveedor proveedorSeleccionado = (Proveedor) cmbProveedor.getSelectedItem();
+                if (proveedorSeleccionado == null) {
+                    JOptionPane.showMessageDialog(null, "Debe seleccionar un proveedor", 
+                        "Error", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
                 
                 String imagenPath = currentImagePath;
                 if (selectedImagePath != null && !selectedImagePath.isEmpty()) {
@@ -400,8 +412,9 @@ public class ModalEditar extends JDialog {
                 int cantidadActualizada = Integer.parseInt(cantidadInput);
                 
                 boolean resultado = producto.actualizarProducto(productoId, nombreInput, descInput, precioActualizado, 
-                                                      cantidadActualizada, proveedorInput, categoriaInput, 
-                                                      codigoInput, imagenPath);
+                        cantidadActualizada, proveedorSeleccionado.getNombre(), 
+                        proveedorSeleccionado.getId(), categoriaInput, 
+                        codigoInput, imagenPath);
                 
                 if (resultado) {
                     JOptionPane.showMessageDialog(null, "Producto actualizado con éxito", "Éxito", 
@@ -474,6 +487,54 @@ public class ModalEditar extends JDialog {
         } else {
             errorLabel.setVisible(false);
             return true;
+        }
+    }
+    
+    /**
+     * Cargar proveedores en el ComboBox
+     */
+    private void cargarProveedores() {
+        try {
+            List<Proveedor> proveedores = proveedorDAO.leer();
+            cmbProveedor.removeAllItems();
+            
+            // Agregar opción por defecto
+            cmbProveedor.addItem(null);
+            
+            for (Proveedor proveedor : proveedores) {
+                cmbProveedor.addItem(proveedor);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar proveedores: " + e.getMessage(), 
+                                        "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Validar campo proveedor
+     */
+    private boolean validarCampoProveedor() {
+        if (cmbProveedor.getSelectedItem() == null) {
+            lblErrorProveedor.setText("Debe seleccionar un proveedor");
+            lblErrorProveedor.setVisible(true);
+            return false;
+        } else {
+            lblErrorProveedor.setVisible(false);
+            return true;
+        }
+    }
+    
+    /**
+     * Seleccionar proveedor por nombre en el ComboBox
+     */
+    private void seleccionarProveedorPorNombre(String nombreProveedor) {
+        for (int i = 0; i < cmbProveedor.getItemCount(); i++) {
+            Proveedor item = cmbProveedor.getItemAt(i);
+            if (item != null && item.getNombre().equals(nombreProveedor)) {
+                cmbProveedor.setSelectedIndex(i);
+                break;
+            }
         }
     }
 

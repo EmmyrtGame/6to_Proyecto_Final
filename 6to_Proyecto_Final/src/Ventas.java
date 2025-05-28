@@ -684,6 +684,7 @@ public class Ventas extends JPanel {
             original.getProveedor(),
             original.getCategoria(),
             cantidad,
+            original.getIdProveedor(),
             original.getCodigo(),
             original.getRutaImagen()
         );

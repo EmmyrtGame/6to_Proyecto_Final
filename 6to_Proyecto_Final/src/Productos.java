@@ -12,18 +12,20 @@ public class Productos {
     private String proveedor;
     private String categoria;
     private int cantidad;
+    private int idProveedor;
     private String codigo;
     private String rutaImagen;
     
     /**
      * Constructor paramatrizado con todos los parámetros para definir un producto
      */
-    public Productos(int id, String nombre, String descripcion, double precio, String proveedor, String categoria, int cantidad, String codigo, String rutaImagen){
+    public Productos(int id, String nombre, String descripcion, double precio, String proveedor, String categoria, int cantidad, int idProveedor, String codigo, String rutaImagen){
     	this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.proveedor = proveedor;
+        this.idProveedor = -1;
         this.categoria = categoria;
         this.cantidad = cantidad;
         this.codigo = codigo;
@@ -39,6 +41,7 @@ public class Productos {
         this.descripcion = "";
         this.precio = 0.0;
         this.proveedor = "";
+        this.idProveedor = -1;
         this.categoria = "";
         this.cantidad = 0;
         this.codigo = "";
@@ -53,10 +56,15 @@ public class Productos {
     public String getProveedor() { return proveedor; }
     public String getCategoria() { return categoria; }
     public int getCantidad() { return cantidad; }
+    public int getIdProveedor() { return idProveedor; }
     public String getCodigo() { return codigo; }
     
     public void setId(int id) {
         this.id = id;
+    }
+    
+    public void setIdProveedor(int idProveedor) {
+        this.idProveedor = idProveedor;
     }
 
     public void setNombre(String nombre) {

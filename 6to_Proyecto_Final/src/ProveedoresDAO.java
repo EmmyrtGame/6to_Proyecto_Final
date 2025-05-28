@@ -97,25 +97,59 @@ public class ProveedoresDAO {
     }
     
     /**
-     * Modifica los datos de un proveedor existente
+     * Modifica los datos de un proveedor existente y actualiza productos relacionados
      */
     public boolean modificar(int id, String nombre, String direccion, String telefono, String correo) {
-        String sql = "UPDATE proveedores SET nombre = ?, direccion = ?, telefono = ?, correo = ? WHERE id = ?";
+        String sqlProveedor = "UPDATE proveedores SET nombre = ?, direccion = ?, telefono = ?, correo = ? WHERE id = ?";
+        String sqlProductos = "UPDATE productos SET proveedor = ? WHERE id_proveedor = ?";
         
-        try (Connection conn = db.obtenerConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = db.obtenerConexion()) {
+            // Iniciar transacción
+            conn.setAutoCommit(false);
             
-            ps.setString(1, nombre);
-            ps.setString(2, direccion);
-            ps.setString(3, telefono);
-            ps.setString(4, correo);
-            ps.setInt(5, id);
+            try {
+                // Actualizar proveedor
+                PreparedStatement psProveedor = conn.prepareStatement(sqlProveedor);
+                psProveedor.setString(1, nombre);
+                psProveedor.setString(2, direccion);
+                psProveedor.setString(3, telefono);
+                psProveedor.setString(4, correo);
+                psProveedor.setInt(5, id);
+                
+                // Actualizar productos con el nuevo nombre del proveedor
+                PreparedStatement psProductos = conn.prepareStatement(sqlProductos);
+                psProductos.setString(1, nombre);
+                psProductos.setInt(2, id);
+                
+                boolean proveedorActualizado = psProveedor.executeUpdate() > 0;
+                psProductos.executeUpdate(); // Actualizar productos (puede ser 0 si no hay productos)
+                
+                if (proveedorActualizado) {
+                    conn.commit();
+                    return true;
+                } else {
+                    conn.rollback();
+                    return false;
+                }
+                
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
             
-            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * Obtiene todos los proveedores para uso en ComboBox
+     */
+    public List<Proveedor> obtenerParaComboBox() {
+        return leer(); // Reutiliza el método existente
     }
     
     /**

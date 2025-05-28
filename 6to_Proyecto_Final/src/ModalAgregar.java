@@ -16,7 +16,7 @@ import javax.swing.text.MaskFormatter;
 import javax.swing.text.NumberFormatter;
 import javax.swing.JFormattedTextField;
 import java.text.ParseException;
-
+import java.util.List;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.FlowLayout;
@@ -26,6 +26,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JFileChooser;
@@ -57,7 +59,7 @@ public class ModalAgregar extends JDialog {
 	private static final long serialVersionUID = 1L;
 	private JTextField txtNombre;
 	private JTextField txtPrecio;
-	private JTextField txtProveedor;
+	private JComboBox<Proveedor> cmbProveedor;
 	private JTextField txtCategoria;
 	private JTextField txtCantidad;
 	private JTextField txtCodigo;
@@ -66,6 +68,8 @@ public class ModalAgregar extends JDialog {
 	private String selectedImagePath;
 	private String savedImageName;
 	private ProductosDAO producto = null;
+	private ProveedoresDAO proveedorDAO = null;
+	private JLabel lblErrorProveedor = null;
 
 	/**
 	 * Launch the application.
@@ -91,6 +95,7 @@ public class ModalAgregar extends JDialog {
 	 */
 	public ModalAgregar() {
 		producto = new ProductosDAO();
+		proveedorDAO = new ProveedoresDAO();
 		setModal(true);
 		setSize(650, 750);
 		setResizable(false);
@@ -127,7 +132,7 @@ public class ModalAgregar extends JDialog {
 		lblErrorDescripcion.setBounds(152, 164, 441, 14);
 		pnlDatos.add(lblErrorDescripcion);
 		
-		JLabel lblErrorProveedor = new JLabel("New label");
+		lblErrorProveedor = new JLabel("New label");
 		lblErrorProveedor.setForeground(new Color(128, 0, 0));
 		lblErrorProveedor.setFont(new Font("Century Gothic", Font.BOLD, 11));
 		lblErrorProveedor.setBounds(152, 276, 332, 14);
@@ -246,17 +251,17 @@ public class ModalAgregar extends JDialog {
 		lblProveedor.setBounds(20, 263, 137, 14);
 		pnlDatos.add(lblProveedor);
 		
-		txtProveedor = new JTextField();
-		txtProveedor.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				validarCampo(txtProveedor.getText(), lblErrorProveedor, "proveedor");
-			}
-		});
-		txtProveedor.setFont(new Font("Century Gothic", Font.PLAIN, 16));
-		txtProveedor.setColumns(10);
-		txtProveedor.setBounds(152, 260, 333, 20);
-		pnlDatos.add(txtProveedor);
+		cmbProveedor = new JComboBox<>();
+        cmbProveedor.setFont(new Font("Century Gothic", Font.PLAIN, 16));
+        cmbProveedor.setBounds(152, 260, 333, 20);
+        cmbProveedor.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                validarCampoProveedor();
+            }
+        });
+        cargarProveedores(); // Cargar proveedores en el ComboBox
+        pnlDatos.add(cmbProveedor);
 		
 		txtCategoria = new JTextField();
 		txtCategoria.addFocusListener(new FocusAdapter() {
@@ -365,18 +370,16 @@ public class ModalAgregar extends JDialog {
 				String descInput = txtDescripcion.getText();
 				String precioInput = txtPrecio.getText();
 				String cantidadInput = txtCantidad.getText();
-				String proveedorInput = txtProveedor.getText();
 				String categoriaInput = txtCategoria.getText();
 				String codigoInput = txtCodigo.getText();
 				
-				boolean validaciones[] = new boolean[7];
+				boolean validaciones[] = new boolean[6];
 				validaciones[0] = validarCampo(nombreInput, lblErrorNombre, "nombre");
 				validaciones[1] = validarCampo(descInput, lblErrorDescripcion, "descripcion");
 				validaciones[2] = validarCampo(precioInput, lblErrorPrecio, "precio");
 				validaciones[3] = validarCampo(cantidadInput, lblErrorCantidad, "cantidad");
-				validaciones[4] = validarCampo(proveedorInput, lblErrorProveedor, "proveedor");
-				validaciones[5] = validarCampo(categoriaInput, lblErrorCategoria, "categoria");
-				validaciones[6] = validarCampo(codigoInput, lblErrorCodigo, "codigo");
+				validaciones[4] = validarCampo(categoriaInput, lblErrorCategoria, "categoria");
+				validaciones[5] = validarCampo(codigoInput, lblErrorCodigo, "codigo");
 				
 				boolean valido = true;
 				for (boolean validacion : validaciones) {
@@ -385,6 +388,14 @@ public class ModalAgregar extends JDialog {
 					}
 				}
 				if (!valido) { return; }
+				
+				// Obtener proveedor seleccionado
+                Proveedor proveedorSeleccionado = (Proveedor) cmbProveedor.getSelectedItem();
+                if (proveedorSeleccionado == null) {
+                    JOptionPane.showMessageDialog(null, "Debe seleccionar un proveedor", 
+                        "Error", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
 				
 				String imagenPath = null;
 		        if (selectedImagePath != null && !selectedImagePath.isEmpty()) {
@@ -395,7 +406,10 @@ public class ModalAgregar extends JDialog {
 		        double precio = Double.parseDouble(precioInput);
 		        int cantidad = Integer.parseInt(cantidadInput);
 				
-				boolean resultado = producto.insertar(nombreInput, descInput, precio, cantidad, proveedorInput, categoriaInput, codigoInput, imagenPath);
+		        boolean resultado = producto.insertar(nombreInput, descInput, precio, cantidad, 
+                        proveedorSeleccionado.getNombre(), 
+                        proveedorSeleccionado.getId(), 
+                        categoriaInput, codigoInput, imagenPath);
 				
 				if (resultado) {
 		            JOptionPane.showMessageDialog(null, "Producto guardado con éxito",  "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -468,6 +482,41 @@ public class ModalAgregar extends JDialog {
 	        return true;
 	    }
 	}
+	
+	/**
+     * Cargar proveedores en el ComboBox
+     */
+    private void cargarProveedores() {
+        try {
+            List<Proveedor> proveedores = proveedorDAO.leer();
+            cmbProveedor.removeAllItems();
+            
+            // Agregar opción por defecto
+            cmbProveedor.addItem(null);
+            
+            for (Proveedor proveedor : proveedores) {
+                cmbProveedor.addItem(proveedor);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar proveedores: " + e.getMessage(), 
+                                        "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Validar campo proveedor
+     */
+    private boolean validarCampoProveedor() {
+        if (cmbProveedor.getSelectedItem() == null) {
+            lblErrorProveedor.setText("Debe seleccionar un proveedor");
+            lblErrorProveedor.setVisible(true);
+            return false;
+        } else {
+            lblErrorProveedor.setVisible(false);
+            return true;
+        }
+    }
 
 	
 	/**

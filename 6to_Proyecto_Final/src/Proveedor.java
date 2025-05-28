@@ -40,6 +40,14 @@ public class Proveedor {
     public String getTelefono() { return telefono; }
     public String getCorreo() { return correo; }
     
+    /**
+     * Override del método toString
+     */
+    @Override
+    public String toString() {
+        return this.nombre;
+    }
+    
     // Setters
     public void setId(int id) {
         this.id = id;
