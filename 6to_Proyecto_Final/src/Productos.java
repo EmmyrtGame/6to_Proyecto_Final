@@ -25,7 +25,7 @@ public class Productos {
         this.descripcion = descripcion;
         this.precio = precio;
         this.proveedor = proveedor;
-        this.idProveedor = -1;
+        this.idProveedor = idProveedor;
         this.categoria = categoria;
         this.cantidad = cantidad;
         this.codigo = codigo;
