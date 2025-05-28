@@ -544,6 +544,15 @@ public class Ventas extends JPanel {
             lblImagenProducto.setText("Sin imagen");
         }
     }
+    
+    /**
+     * Calcula el total de unidades de productos en el carrito
+     */
+    private int calcularTotalUnidades() {
+        return carrito.stream()
+            .mapToInt(p -> p.getCantidad())
+            .sum();
+    }
 
     // Método para actualizar la imagen cuando cambia el tamaño del panel
     private void actualizarTamañoImagen() {
@@ -644,10 +653,12 @@ public class Ventas extends JPanel {
                 return;
             }
             
+            int totalUnidadesVendidas = calcularTotalUnidades();
+            
             if (necesitaNuevaVenta) {
                 ventasDAO.insertar(
                     sesion.getIdUsuario(),
-                    carrito.size(),
+                    totalUnidadesVendidas,
                     new Date(),
                     totalConIva, // Registrar el total con IVA, que es el precio original de los productos
                     "Pendiente"
@@ -655,7 +666,7 @@ public class Ventas extends JPanel {
             } else {
                 ventasDAO.actualizarVenta(
                     ultimaVenta.getId(),
-                    ultimaVenta.getVentas() + carrito.size(),
+                    ultimaVenta.getVentas() + totalUnidadesVendidas,
                     ultimaVenta.getTotal() + totalConIva // Sumar el total con IVA al registro existente
                 );
             }
