@@ -145,13 +145,97 @@ public class Validator {
             return "El proveedor es demasiado corto (mínimo 2 caracteres)";
         }
         
-        if (proveedor.length() > 100) {
-            return "El proveedor es demasiado largo (máximo 100 caracteres)";
+        if (proveedor.length() > 50) {
+            return "El proveedor es demasiado largo (máximo 50 caracteres)";
         }
         
         // Permite puntos y otros caracteres útiles para nombres de empresas
         if (!proveedor.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 .&()\\-]+$")) {
             return "El proveedor solo puede contener letras, números, espacios y caracteres básicos";
+        }
+        
+        return "correcto";
+    }
+    
+    /**
+     * Valida la dirección del proveedor
+     */
+    public static String validarDireccion(String direccion) {
+        if (direccion == null || direccion.trim().isEmpty()) {
+            return "La dirección no puede estar vacía";
+        }
+        
+        direccion = direccion.trim();
+        
+        if (direccion.length() < 10) {
+            return "La dirección es demasiado corta (mínimo 10 caracteres)";
+        }
+        
+        if (direccion.length() > 100) {
+            return "La dirección es demasiado larga (máximo 100 caracteres)";
+        }
+        
+        // Permite letras, números, espacios, comas, puntos, guiones, # y caracteres especiales comunes en direcciones
+        if (!direccion.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 .,#\\-°]+$")) {
+            return "La dirección contiene caracteres no permitidos";
+        }
+        
+        return "correcto";
+    }
+
+    /**
+     * Valida el teléfono del proveedor con formato ##-####-####
+     */
+    public static String validarTelefono(String telefono) {
+        if (telefono == null || telefono.trim().isEmpty()) {
+            return "El teléfono no puede estar vacío";
+        }
+        
+        telefono = telefono.trim();
+        
+        // Remover caracteres de máscara si existen
+        String telefonoLimpio = telefono.replace("_", "").replace("-", "");
+        
+        // Verificar que solo contenga números después de limpiar
+        if (!telefonoLimpio.matches("^[0-9]+$")) {
+            return "El teléfono solo puede contener números";
+        }
+        
+        // Verificar longitud sin guiones (debe ser 10 dígitos)
+        if (telefonoLimpio.length() != 10) {
+            return "El teléfono debe tener exactamente 10 dígitos";
+        }
+        
+        // Verificar formato con guiones ##-####-####
+        if (!telefono.matches("^\\d{2}-\\d{4}-\\d{4}$")) {
+            return "El teléfono debe tener el formato ##-####-####";
+        }
+        
+        return "correcto";
+    }
+
+    /**
+     * Valida el correo electrónico del proveedor
+     */
+    public static String validarCorreo(String correo) {
+        if (correo == null || correo.trim().isEmpty()) {
+            return "El correo no puede estar vacío";
+        }
+        
+        correo = correo.trim();
+        
+        if (correo.length() < 5) {
+            return "El correo es demasiado corto";
+        }
+        
+        if (correo.length() > 100) {
+            return "El correo es demasiado largo (máximo 100 caracteres)";
+        }
+        
+        // Validación de formato de correo electrónico
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        if (!correo.matches(emailRegex)) {
+            return "El formato del correo electrónico no es válido";
         }
         
         return "correcto";

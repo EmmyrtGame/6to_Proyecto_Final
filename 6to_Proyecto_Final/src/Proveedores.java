@@ -204,7 +204,7 @@ public class Proveedores extends JPanel {
         txtNombre = new JTextField();
         txtNombre.addFocusListener(new FocusAdapter() {
             public void focusLost(FocusEvent e) {
-                // Validación se agregará después con la clase Validator
+            	validarCampo(txtNombre.getText(), lblErrorNombre, "nombre");
             }
         });
         agregarComponente(panelEdicion, txtNombre, 1, 1, GridBagConstraints.HORIZONTAL, 1.0);
@@ -222,7 +222,7 @@ public class Proveedores extends JPanel {
         txtDireccion.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                // Validación se agregará después con la clase Validator
+            	validarCampo(txtDireccion.getText(), lblErrorDireccion, "direccion");
             }
         });
         agregarComponente(panelEdicion, txtDireccion, 1, 3, GridBagConstraints.HORIZONTAL, 1.0);
@@ -246,7 +246,7 @@ public class Proveedores extends JPanel {
         txtTelefono.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                // Validación se agregará después con la clase Validator
+            	validarCampo(txtTelefono.getText(), lblErrorTelefono, "telefono");
             }
         });
         agregarComponente(panelEdicion, txtTelefono, 1, 5, GridBagConstraints.HORIZONTAL, 1.0);
@@ -264,7 +264,7 @@ public class Proveedores extends JPanel {
         txtCorreo.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                // Validación se agregará después con la clase Validator
+            	validarCampo(txtCorreo.getText(), lblErrorCorreo, "correo");
             }
         });
         agregarComponente(panelEdicion, txtCorreo, 1, 7, GridBagConstraints.HORIZONTAL, 1.0);
@@ -292,6 +292,23 @@ public class Proveedores extends JPanel {
                 String direccion = txtDireccion.getText();
                 String telefono = txtTelefono.getText();
                 String correo = txtCorreo.getText();
+                
+                // Validar todos los campos antes de guardar
+                boolean[] validaciones = new boolean[4];
+                validaciones[0] = validarCampo(nombre, lblErrorNombre, "nombre");
+                validaciones[1] = validarCampo(direccion, lblErrorDireccion, "direccion");
+                validaciones[2] = validarCampo(telefono, lblErrorTelefono, "telefono");
+                validaciones[3] = validarCampo(correo, lblErrorCorreo, "correo");
+
+                boolean valido = true;
+                for (boolean validacion : validaciones) {
+                    if (!validacion) {
+                        valido = false;
+                    }
+                }
+                if (!valido) {
+                    return;
+                }
                 
                 // Validaciones básicas
                 if (nombre.trim().isEmpty() || direccion.trim().isEmpty() || 
@@ -439,6 +456,37 @@ public class Proveedores extends JPanel {
         bottom.add(rightPanel, BorderLayout.EAST);
         
         add(bottom, BorderLayout.SOUTH);
+    }
+    
+    /**
+     * Método para validar campos de proveedores
+     */
+    private boolean validarCampo(String campo, JLabel errorLabel, String tipoValidacion) {
+        String resultado = "";
+        
+        switch (tipoValidacion) {
+            case "nombre":
+                resultado = Validator.validarProveedor(campo);
+                break;
+            case "direccion":
+                resultado = Validator.validarDireccion(campo);
+                break;
+            case "telefono":
+                resultado = Validator.validarTelefono(campo);
+                break;
+            case "correo":
+                resultado = Validator.validarCorreo(campo);
+                break;
+        }
+        
+        if (!resultado.equals("correcto")) {
+            errorLabel.setText(resultado);
+            errorLabel.setVisible(true);
+            return false;
+        } else {
+            errorLabel.setVisible(false);
+            return true;
+        }
     }
     
     private void limpiarFormulario() {
