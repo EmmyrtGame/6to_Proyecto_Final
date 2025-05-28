@@ -1,3 +1,5 @@
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -21,8 +23,9 @@ public class VentasDAO {
     public List<Venta> obtenerTodas() {
         List<Venta> lista = new ArrayList<>();
         String sql = "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas ORDER BY fecha DESC";
-        try {
-            ResultSet rs = db.obtenerSentencia(sql);
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Venta v = new Venta(
                     rs.getInt("id"),
@@ -48,19 +51,15 @@ public class VentasDAO {
      */
     public List<Venta> obtenerPorRangoFechas(Date fechaInicio, Date fechaFin) {
         List<Venta> lista = new ArrayList<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String sql = "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
+                     "WHERE fecha BETWEEN ? AND ? ORDER BY fecha DESC";
 
-        try {
-        	String sqlFechaInicio = sdf.format(fechaInicio);
-            String sqlFechaFin = sdf.format(fechaFin);
-            
-            String sql = String.format(
-                    "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
-                    "WHERE fecha BETWEEN #%s 00:00:00# AND #%s 23:59:59# ORDER BY fecha DESC",
-                    sqlFechaInicio, sqlFechaFin
-            );
-        	
-            ResultSet rs = db.obtenerSentencia(sql);
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDate(1, new java.sql.Date(fechaInicio.getTime()));
+            stmt.setDate(2, new java.sql.Date(fechaFin.getTime()));
+
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Venta v = new Venta(
                     rs.getInt("id"),
@@ -78,6 +77,7 @@ public class VentasDAO {
         } finally {
             db.cerrarConexion();
         }
+
         return lista;
     }
     
@@ -86,13 +86,14 @@ public class VentasDAO {
      */
     public List<Venta> obtenerPorEstado(String estado) {
         List<Venta> lista = new ArrayList<>();
-        String sql = String.format(
-            "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
-            "WHERE estado = '%s'", estado
-        );
-        
-        try {
-            ResultSet rs = db.obtenerSentencia(sql);
+        String sql = "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas WHERE estado = ?";
+
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, estado);
+
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Venta v = new Venta(
                     rs.getInt("id"),
@@ -110,6 +111,7 @@ public class VentasDAO {
         } finally {
             db.cerrarConexion();
         }
+
         return lista;
     }
     
@@ -118,13 +120,13 @@ public class VentasDAO {
      */
     public List<Venta> obtenerPorUsuario(int idUsuario) {
         List<Venta> lista = new ArrayList<>();
-        String sql = String.format(
-            "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
-            "WHERE id_usuario = %d", idUsuario
-        );
-        
-        try {
-            ResultSet rs = db.obtenerSentencia(sql);
+        String sql = "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas WHERE id_usuario = ?";
+
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Venta v = new Venta(
                     rs.getInt("id"),
@@ -142,6 +144,7 @@ public class VentasDAO {
         } finally {
             db.cerrarConexion();
         }
+
         return lista;
     }
     
@@ -149,13 +152,14 @@ public class VentasDAO {
      * Obtiene los detalles de una venta específica por su ID.
      */
     public Venta obtenerPorId(int idVenta) {
-        String sql = String.format(
-            "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
-            "WHERE id = %d", idVenta
-        );
-        
-        try {
-            ResultSet rs = db.obtenerSentencia(sql);
+        String sql = "SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas WHERE id = ?";
+
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idVenta);
+
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Venta(
                     rs.getInt("id"),
@@ -172,6 +176,7 @@ public class VentasDAO {
         } finally {
             db.cerrarConexion();
         }
+
         return null;
     }
     
@@ -180,25 +185,40 @@ public class VentasDAO {
      */
     public List<Venta> obtenerVentasFiltradas(Date fechaInicio, Date fechaFin, int idUsuario, String estado) {
         List<Venta> lista = new ArrayList<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        
         StringBuilder sql = new StringBuilder("SELECT id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas WHERE 1=1");
-        
+        List<Object> parametros = new ArrayList<>();
+
         if (fechaInicio != null && fechaFin != null) {
-            sql.append(String.format(" AND fecha BETWEEN #%s# AND #%s#", 
-                       sdf.format(fechaInicio), sdf.format(fechaFin)));
+            sql.append(" AND fecha BETWEEN ? AND ?");
+            parametros.add(new java.sql.Date(fechaInicio.getTime()));
+            parametros.add(new java.sql.Date(fechaFin.getTime()));
         }
-        
+
         if (idUsuario != -1) {
-            sql.append(String.format(" AND id_usuario = %d", idUsuario));
+            sql.append(" AND id_usuario = ?");
+            parametros.add(idUsuario);
         }
-        
+
         if (estado != null && !estado.isEmpty()) {
-            sql.append(String.format(" AND estado = '%s'", estado));
+            sql.append(" AND estado = ?");
+            parametros.add(estado);
         }
-        
+
         try {
-            ResultSet rs = db.obtenerSentencia(sql.toString());
+            PreparedStatement ps = db.obtenerConexion().prepareStatement(sql.toString());
+
+            for (int i = 0; i < parametros.size(); i++) {
+                Object valor = parametros.get(i);
+                if (valor instanceof Integer) {
+                    ps.setInt(i + 1, (Integer) valor);
+                } else if (valor instanceof String) {
+                    ps.setString(i + 1, (String) valor);
+                } else if (valor instanceof java.sql.Date) {
+                    ps.setDate(i + 1, (java.sql.Date) valor);
+                }
+            }
+
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Venta v = new Venta(
                     rs.getInt("id"),
@@ -211,87 +231,126 @@ public class VentasDAO {
                 );
                 lista.add(v);
             }
+
+            rs.close();
+            ps.close();
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             db.cerrarConexion();
         }
+
         return lista;
     }
     
     /**
      * Calcula estadísticas de ventas para un período.
      */
+    
     public double[] calcularEstadisticas(Date fechaInicio, Date fechaFin) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String sql = String.format(
-            "SELECT COUNT(id) as total_ventas, SUM(ventas) as cantidad_ventas, " +
-            "SUM(total) as importe_total, AVG(total) as promedio_venta " +
-            "FROM ventas WHERE fecha BETWEEN #%s# AND #%s#",
-            sdf.format(fechaInicio), sdf.format(fechaFin)
-        );
-        
+
+        String sql = "SELECT COUNT(id) as total_ventas, SUM(ventas) as cantidad_ventas, " +
+                     "SUM(total) as importe_total, AVG(total) as promedio_venta " +
+                     "FROM ventas WHERE fecha BETWEEN ? AND ?";
+
         try {
-            ResultSet rs = db.obtenerSentencia(sql);
+            // Preparamos la consulta y enviamos los valores de las fechas
+            PreparedStatement ps = db.obtenerConexion().prepareStatement(sql);
+            ps.setString(1, sdf.format(fechaInicio) + " 00:00:00");
+            ps.setString(2, sdf.format(fechaFin) + " 23:59:59");
+
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 double[] estadisticas = new double[4];
                 estadisticas[0] = rs.getDouble("total_ventas");     // Número de ventas
                 estadisticas[1] = rs.getDouble("cantidad_ventas");  // Cantidad de productos
                 estadisticas[2] = rs.getDouble("importe_total");    // Importe total
                 estadisticas[3] = rs.getDouble("promedio_venta");   // Promedio por venta
+                rs.close();
+                ps.close();
                 return estadisticas;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); 
         } finally {
-            db.cerrarConexion();
+            db.cerrarConexion();  
         }
+
         return new double[4];
     }
+
     
     /**
      * Obtiene el nombre del cajero que realizó una venta.
      */
+    
     public String obtenerNombreCajero(int idUsuario) {
-        String sql = String.format("SELECT nombre FROM sesiones WHERE id = %d", idUsuario);
+        String sql = "SELECT nombre FROM sesiones WHERE id = ?";
+
         try {
-            ResultSet rs = db.obtenerSentencia(sql);
+            
+            PreparedStatement ps = db.obtenerConexion().prepareStatement(sql);
+            ps.setInt(1, idUsuario); 
+
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getString("nombre");
+                String nombre = rs.getString("nombre");
+                rs.close();
+                ps.close();
+                return nombre;
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            db.cerrarConexion();
+            db.cerrarConexion();  
         }
-        return "";
+
+        return "";  
     }
+
     
     /**
      * Inserta una nueva venta en la base de datos.
      */
     public boolean insertar(int idUsuario, int ventas, Date fecha, double total, String estado) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String sql = String.format(
-            "INSERT INTO ventas (id_usuario, ventas, fecha, total, estado) " +
-            "VALUES (%d, %d, #%s#, %f, '%s')",
-            idUsuario, ventas, sdf.format(fecha), total, estado
-        );
-        return db.ejecutarSentencia(sql);
+        String sql = "INSERT INTO ventas (id_usuario, ventas, fecha, total, estado) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idUsuario);
+            stmt.setInt(2, ventas);
+            stmt.setDate(3, new java.sql.Date(fecha.getTime()));
+            stmt.setDouble(4, total);
+            stmt.setString(5, estado);
+
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            db.cerrarConexion();
+        }
     }
+
     
     /**
      * Método para obtener la ultima venta del usuario
      */
     public Venta obtenerUltimaVentaUsuario(int idUsuario) {
-        String sql = String.format(
-            "SELECT TOP 1 * FROM ventas WHERE id_usuario = %d ORDER BY id DESC", 
-            idUsuario
-        );
-        
-        try {
-            ResultSet rs = db.obtenerSentencia(sql);
-            if(rs.next()) {
+        String sql = "SELECT TOP 1 id, id_usuario, ventas, fecha, total, estado, diferencia FROM ventas " +
+                     "WHERE id_usuario = ? ORDER BY fecha DESC";
+
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
                 return new Venta(
                     rs.getInt("id"),
                     rs.getInt("id_usuario"),
@@ -304,48 +363,102 @@ public class VentasDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            db.cerrarConexion();
         }
+
         return null;
     }
+
 
     /**
      * Método para actualizar la venta existente
      */
     public boolean actualizarVenta(int idVenta, int nuevasVentas, double nuevoTotal) {
-        String sql = String.format(
-            "UPDATE ventas SET ventas = %d, total = %f WHERE id = %d",
-            nuevasVentas, nuevoTotal, idVenta
-        );
-        return db.ejecutarSentencia(sql);
+        String sql = "UPDATE ventas SET ventas = ?, total = ? WHERE id = ?";
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, nuevasVentas);
+            stmt.setDouble(2, nuevoTotal);
+            stmt.setInt(3, idVenta);
+
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            db.cerrarConexion();
+        }
     }
     
     /**
      * Método específico para actualizar venta en proceso de corte de caja
      */
+   
     public boolean actualizarVentaCorte(int idVenta, double nuevoTotal, String nuevoEstado, double diferencia) {
-        String sql = String.format(
-            "UPDATE ventas SET total = %.2f, estado = '%s' WHERE id = %d",
-            nuevoTotal, nuevoEstado, idVenta, diferencia
-        );
-        return db.ejecutarSentencia(sql);
+        String sql = "UPDATE ventas SET total = ?, estado = ? WHERE id = ?";
+
+        try {
+            // Preparamos la consulta segura
+            PreparedStatement ps = db.obtenerConexion().prepareStatement(sql);
+            ps.setDouble(1, nuevoTotal);    
+            ps.setString(2, nuevoEstado);    
+            ps.setInt(3, idVenta);          
+
+            int filasAfectadas = ps.executeUpdate();  
+
+            ps.close();  
+            return filasAfectadas > 0; 
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            db.cerrarConexion();  
+        }
+
+        return false; 
     }
+
     
     /**
      * Actualiza el estado de una venta.
      */
     public boolean actualizarEstado(int idVenta, String nuevoEstado) {
-        String sql = String.format(
-            "UPDATE ventas SET estado = '%s' WHERE id = %d",
-            nuevoEstado, idVenta
-        );
-        return db.ejecutarSentencia(sql);
+        String sql = "UPDATE ventas SET estado = ? WHERE id = ?";
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nuevoEstado);
+            stmt.setInt(2, idVenta);
+
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            db.cerrarConexion();
+        }
     }
     
     /**
      * Elimina una venta por su ID.
      */
     public boolean eliminar(int idVenta) {
-        String sql = String.format("DELETE FROM ventas WHERE id = %d", idVenta);
-        return db.ejecutarSentencia(sql);
+        String sql = "DELETE FROM ventas WHERE id = ?";
+        try (Connection conn = db.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idVenta);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            db.cerrarConexion();
+        }
     }
 }
